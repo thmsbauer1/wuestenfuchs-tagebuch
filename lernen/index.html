@@ -84,6 +84,15 @@ button,input{font:inherit;color:inherit}
 .birds{animation:birds 26s linear infinite}
 @keyframes birds{from{transform:translateX(-20px)}to{transform:translateX(180px)}}
 .tappable{cursor:pointer}
+.camel-walk{animation:walk 42s linear infinite}
+.camel-step{animation:camelstep .6s steps(2) infinite}
+@keyframes walk{from{transform:translateX(-16px)}to{transform:translateX(170px)}}
+@keyframes camelstep{50%{transform:translateY(-.6px)}}
+.hopg.hop{animation:chop .5s ease-out}
+@keyframes chop{40%{transform:translateY(-7px)}}
+.ship{animation:ship 38s linear infinite}
+@keyframes ship{0%{transform:translate(-22px,12px)}32%{transform:translate(172px,3px)}100%{transform:translate(172px,3px)}}
+.ship .flame{animation:flicker .3s steps(2) infinite}
 .wiggle{animation:wiggle .5s steps(4)}
 @keyframes wiggle{25%{transform:translateX(-1.2px)}75%{transform:translateX(1.2px)}}
 .bubble{position:relative;background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);padding:10px 12px;font-weight:700;font-size:.98rem;line-height:1.35;min-width:0;flex:1;cursor:pointer}
@@ -243,6 +252,7 @@ function foxSVG(cls){
 }
 function px(map,fills,ox,oy){let r="";map.forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=="."&&fills[c])r+=`<rect x="${ox+x}" y="${oy+y}" width="1.04" height="1.04" fill="${fills[c]}"/>`;}));return r;}
 function dateSVG(){return `<svg class="date-ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="1" fill="#3f7d33"/><rect x="2" y="1" width="4" height="1" fill="#7a3e14"/><rect x="1" y="2" width="6" height="4" fill="#9a5220"/><rect x="2" y="2" width="1" height="2" fill="#c9783a"/><rect x="2" y="6" width="4" height="1" fill="#7a3e14"/></svg>`;}
+const ROCKET=["....#######...","..##o##o####..","ff###########r","ff##########r.","..##########..","....#######..."];
 const CAMEL=["..........##","....##....##","...####...#.",".########.#.","###########.",".#########..",".#.#...#.#..",".#.#...#.#.."];
 const PALM=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s||1})"><g fill="var(--trunk)"><rect x="6" y="6" width="2" height="4"/><rect x="7" y="10" width="2" height="4"/><rect x="8" y="14" width="2" height="6"/></g><g fill="var(--palm)"><rect x="0" y="3" width="6" height="2"/><rect x="-2" y="5" width="3" height="2"/><rect x="7" y="2" width="7" height="2"/><rect x="13" y="4" width="3" height="2"/><rect x="3" y="0" width="6" height="2"/><rect x="5" y="4" width="4" height="2"/><rect x="1" y="7" width="2" height="2"/><rect x="11" y="6" width="2" height="2"/></g></g>`;
 /* Die Oase wächst mit jeder erledigten Mission um ein Teil */
@@ -251,7 +261,7 @@ const OASE=[
   {n:"eine Wasserstelle",d:()=>`<g><rect x="72" y="56" width="30" height="5" fill="var(--water)"/><rect x="76" y="54" width="22" height="2" fill="var(--water)"/><rect x="78" y="61" width="18" height="2" fill="var(--water)"/><rect x="80" y="56" width="6" height="1" fill="var(--water2)"/><rect x="90" y="58" width="5" height="1" fill="var(--water2)"/></g>`},
   {n:"ein Zelt",d:()=>`<g><rect x="138" y="40" width="4" height="2" fill="var(--tent)"/><rect x="136" y="42" width="8" height="2" fill="var(--tent)"/><rect x="134" y="44" width="12" height="2" fill="var(--tent2)"/><rect x="132" y="46" width="16" height="2" fill="var(--tent)"/><rect x="130" y="48" width="20" height="2" fill="var(--tent2)"/><rect x="128" y="50" width="24" height="3" fill="var(--tent)"/><rect x="138" y="47" width="4" height="6" fill="#3a2413"/></g>`},
   {n:"bunte Blumen",d:()=>`<g><rect x="70" y="52" width="1" height="2" fill="#3f7d33"/><rect x="69" y="51" width="3" height="1" fill="#f08a7e"/><rect x="104" y="53" width="1" height="2" fill="#3f7d33"/><rect x="103" y="52" width="3" height="1" fill="#ffd25a"/><rect x="99" y="62" width="1" height="2" fill="#3f7d33"/><rect x="98" y="61" width="3" height="1" fill="#c98ae0"/><rect x="75" y="63" width="1" height="2" fill="#3f7d33"/><rect x="74" y="62" width="3" height="1" fill="#ffffff"/></g>`},
-  {n:"ein Kamel",d:()=>`<g fill="var(--camel)" class="tappable" data-act="camel">${CAMEL.map((row,y)=>[...row].map((c,x)=>c==="#"?`<rect x="${106+x}" y="${45+y}" width="1.04" height="1.04"/>`:"").join("")).join("")}</g>`},
+  {n:"ein Kamel-Baby",d:()=>`<g class="tappable" data-act="baby">${px(["...##..#","..####.#","########",".######.",".#.#.#..",".#.#.#.."],{"#":"var(--camel)"},104,51)}<rect x="102" y="49" width="12" height="10" fill="transparent"/></g>`},
   {n:"ein Lagerfeuer",d:()=>`<g><rect x="56" y="58" width="8" height="2" fill="#7a4a1e"/><g class="fire"><rect x="58" y="55" width="4" height="3" fill="#f2a33a"/><rect x="59" y="53" width="2" height="2" fill="#ffd25a"/><rect x="57" y="56" width="1" height="2" fill="#e2552c"/><rect x="62" y="56" width="1" height="2" fill="#e2552c"/></g></g>`},
   {n:"eine zweite Palme",d:()=>PALM(86,34,.8)},
   {n:"ein Fennek-Bau",d:()=>`<g><rect x="42" y="54" width="10" height="2" fill="var(--dune-far)"/><rect x="40" y="56" width="14" height="4" fill="var(--dune-far)"/><rect x="44" y="56" width="6" height="4" fill="#3a2413"/><rect x="45" y="55" width="4" height="1" fill="#3a2413"/></g>`},
@@ -272,6 +282,8 @@ function oaseSVG(newIdx){
   <rect width="160" height="70" fill="var(--sky)"/><g style="opacity:var(--star-op)">${stars}</g>
   <g class="tappable" data-act="sun" fill="var(--sun)"><rect x="128" y="6" width="12" height="12"/><rect x="130" y="4" width="8" height="16"/><rect x="126" y="8" width="16" height="8"/></g>
   <path d="M0 40H18V38H38V36H58V34H78V36H98V38H112V36H132V34H160V70H0Z" fill="var(--dune-far)"/>
+  <g class="camel-walk"><g class="hopg tappable" data-act="camel"><g transform="translate(0 28)"><g class="camel-step" fill="var(--camel)">${CAMEL.map((row,y)=>[...row].map((c,x)=>c==="#"?`<rect x="${x}" y="${y}" width="1.04" height="1.04"/>`:"").join("")).join("")}<rect x="-2" y="-2" width="16" height="12" fill="transparent"/></g></g></g></g>
+  <g class="ship"><g class="tappable" data-act="ship">${px(ROCKET,{"#":"#dfe3ea","o":"#4fb3d9","r":"#c4553a"},0,0)}<g class="flame">${px(ROCKET,{f:"#f2a33a"},0,0)}</g><rect x="-2" y="-2" width="18" height="10" fill="transparent"/></g></g>
   <path d="M0 50H14V48H34V46H54V48H70V50H94V48H110V46H130V48H160V70H0Z" fill="var(--dune-near)"/>
   ${items}</svg>`;
 }
@@ -641,7 +653,9 @@ document.addEventListener("click",async ev=>{
    case"speak":speak(b.dataset.t);break;
    case"fox":fx(b,"hop");snd("hop");say(pickA(["Hihi, das kitzelt!","Lernen macht Durst. Zum Glück haben wir eine Wasserstelle!","Weißt du was? Fenneks hören sogar Käfer unter dem Sand.","Yalla! Weiter geht's!","Jede Mission bringt was Neues in die Oase."]));break;
    case"sun":snd("tap");say("Schams heißt Sonne. Und sun auf Englisch!");break;
-   case"camel":fx(b,"wiggle");snd("hop");say("Das Kamel heißt auf Englisch camel. Fast gleich!");break;
+   case"camel":fx(b,"hop");snd("hop");say(pickA(["Hüpf! Kamel heißt auf Englisch camel. Fast gleich!","Das Dromedar hat nur einen Höcker. Auf Englisch: dromedary.","Hopp, hopp! Wo läuft das Kamel wohl hin?"]));break;
+   case"baby":snd("tap");say("Pssst, das Kamel-Baby schläft. Auf Englisch heißt es baby camel.");break;
+   case"ship":snd("hop");say("Das ist meine Wüsten-Rakete! Wusstest du: Teile von Star Wars wurden in der Wüste von Tunesien gedreht.");break;
    case"bubble":if(b.dataset.full){clearInterval(typeT);b.textContent=b.dataset.full;}break;
    case"snd":S.sound=S.sound===false;save();render();snd("pop");break;
    case"len":S.len=b.dataset.v;save();render();break;

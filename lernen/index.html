@@ -23,7 +23,7 @@
   --terra:#c4553a; --green:#4c8a36; --green-dark:#2f5f24; --gold:#d99a14;
   --chip:#f8e6bb; --chip-on:#1d6fb8; --chip-on-ink:#ffffff;
   --math:#c4553a; --eng:#1d6fb8; --deu:#4c8a36;
-  --sky:#8fd0f2; --sun:#ffd25a; --dune-far:#e8c07c; --dune-near:#d6a159; --palm:#3f7d33; --trunk:#8a5a2b; --house:#fbfbf6; --dome:#1d6fb8; --water:#4fb3d9; --water2:#8fd6ef; --camel:#b9803f; --tent:#c4553a; --tent2:#f3dfb1; --star-op:0;
+  --sky:#8fd0f2; --sun:#ffd25a; --dune-far:#e8c07c; --dune-near:#d6a159; --palm:#3f7d33; --trunk:#8a5a2b; --house:#fbfbf6; --dome:#1d6fb8; --water:#4fb3d9; --water2:#8fd6ef; --camel:#b9803f; --tent:#c4553a; --tent2:#f3dfb1; --clay:#d9a066; --clay2:#c08a52; --star-op:0;
   --f-display:"Pixelify Sans","Courier New",monospace;
   --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
@@ -34,7 +34,7 @@
   --terra:#e2795d; --green:#6fbf5a; --green-dark:#3d8a31; --gold:#f2c04a;
   --chip:#2a3360; --chip-on:#4da3ea; --chip-on-ink:#0b1022;
   --math:#e2795d; --eng:#4da3ea; --deu:#6fbf5a;
-  --sky:#1b2453; --sun:#f1e6b8; --dune-far:#3d3c60; --dune-near:#2d2c4a; --palm:#2e5a39; --trunk:#5b4030; --house:#c9cbe0; --dome:#2a6ea8; --water:#2a5f9e; --water2:#4d82c0; --camel:#7a6488; --tent:#a8503d; --tent2:#5a5470; --star-op:1;
+  --sky:#1b2453; --sun:#f1e6b8; --dune-far:#3d3c60; --dune-near:#2d2c4a; --palm:#2e5a39; --trunk:#5b4030; --house:#c9cbe0; --dome:#2a6ea8; --water:#2a5f9e; --water2:#4d82c0; --camel:#7a6488; --tent:#a8503d; --tent2:#5a5470; --clay:#6e5d70; --clay2:#5a4b5e; --star-op:1;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
@@ -43,7 +43,7 @@
   --terra:#e2795d; --green:#6fbf5a; --green-dark:#3d8a31; --gold:#f2c04a;
   --chip:#2a3360; --chip-on:#4da3ea; --chip-on-ink:#0b1022;
   --math:#e2795d; --eng:#4da3ea; --deu:#6fbf5a;
-  --sky:#1b2453; --sun:#f1e6b8; --dune-far:#3d3c60; --dune-near:#2d2c4a; --palm:#2e5a39; --trunk:#5b4030; --house:#c9cbe0; --dome:#2a6ea8; --water:#2a5f9e; --water2:#4d82c0; --camel:#7a6488; --tent:#a8503d; --tent2:#5a5470; --star-op:1;
+  --sky:#1b2453; --sun:#f1e6b8; --dune-far:#3d3c60; --dune-near:#2d2c4a; --palm:#2e5a39; --trunk:#5b4030; --house:#c9cbe0; --dome:#2a6ea8; --water:#2a5f9e; --water2:#4d82c0; --camel:#7a6488; --tent:#a8503d; --tent2:#5a5470; --clay:#6e5d70; --clay2:#5a4b5e; --star-op:1;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -273,6 +273,12 @@ const OASE=[
   {n:"Vögel am Himmel",d:()=>`<g class="birds"><g fill="var(--ink)"><rect x="0" y="12" width="1" height="1"/><rect x="1" y="13" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="10" width="1" height="1"/><rect x="10" y="9" width="1" height="1"/></g></g>`},
   {n:"eine Fennek-Fahne",d:()=>`<g><rect x="149" y="30" width="1" height="11" fill="#5a3a22"/><rect x="150" y="30" width="7" height="5" fill="var(--accent)"/><rect x="152" y="31" width="1" height="1" fill="#e9b46f"/><rect x="155" y="31" width="1" height="1" fill="#e9b46f"/><rect x="152" y="32" width="4" height="2" fill="#e9b46f"/></g>`}
 ];
+function ksarSVG(){
+  const cell=(x,y)=>`<rect x="${x+1}" y="${y}" width="2" height="1" fill="var(--clay)"/><rect x="${x}" y="${y+1}" width="4" height="3" fill="var(--clay)"/><rect x="${x+1}" y="${y+2}" width="2" height="2" fill="#5a3a22"/><rect x="${x+3}" y="${y+1}" width="1" height="3" fill="var(--clay2)"/>`;
+  let r="";[66,70,74,78].forEach(x=>r+=cell(x,32));[68,72,76].forEach(x=>r+=cell(x,28));[70,74].forEach(x=>r+=cell(x,24));
+  r+=`<g fill="var(--clay2)"><rect x="82" y="35" width="2" height="1"/><rect x="82" y="33" width="1" height="2"/><rect x="81" y="31" width="1" height="2"/><rect x="80" y="29" width="1" height="2"/></g>`;
+  return `<g class="tappable" data-act="ksar">${r}<rect x="65" y="23" width="20" height="14" fill="transparent"/></g>`;
+}
 function missionCount(){return Object.keys(S.missions).length;}
 function oaseSVG(newIdx){
   const n=Math.min(missionCount(),OASE.length);
@@ -282,6 +288,7 @@ function oaseSVG(newIdx){
   <rect width="160" height="70" fill="var(--sky)"/><g style="opacity:var(--star-op)">${stars}</g>
   <g class="tappable" data-act="sun" fill="var(--sun)"><rect x="128" y="6" width="12" height="12"/><rect x="130" y="4" width="8" height="16"/><rect x="126" y="8" width="16" height="8"/></g>
   <path d="M0 40H18V38H38V36H58V34H78V36H98V38H112V36H132V34H160V70H0Z" fill="var(--dune-far)"/>
+  ${ksarSVG()}
   <g class="camel-walk"><g class="hopg tappable" data-act="camel"><g transform="translate(0 28)"><g class="camel-step" fill="var(--camel)">${CAMEL.map((row,y)=>[...row].map((c,x)=>c==="#"?`<rect x="${x}" y="${y}" width="1.04" height="1.04"/>`:"").join("")).join("")}<rect x="-2" y="-2" width="16" height="12" fill="transparent"/></g></g></g></g>
   <g class="ship"><g class="tappable" data-act="ship">${px(ROCKET,{"#":"#dfe3ea","o":"#4fb3d9","r":"#c4553a"},0,0)}<g class="flame">${px(ROCKET,{f:"#f2a33a"},0,0)}</g><rect x="-2" y="-2" width="18" height="10" fill="transparent"/></g></g>
   <path d="M0 50H14V48H34V46H54V48H70V50H94V48H110V46H130V48H160V70H0Z" fill="var(--dune-near)"/>
@@ -654,6 +661,7 @@ document.addEventListener("click",async ev=>{
    case"fox":fx(b,"hop");snd("hop");say(pickA(["Hihi, das kitzelt!","Lernen macht Durst. Zum Glück haben wir eine Wasserstelle!","Weißt du was? Fenneks hören sogar Käfer unter dem Sand.","Yalla! Weiter geht's!","Jede Mission bringt was Neues in die Oase."]));break;
    case"sun":snd("tap");say("Schams heißt Sonne. Und sun auf Englisch!");break;
    case"camel":fx(b,"hop");snd("hop");say(pickA(["Hüpf! Kamel heißt auf Englisch camel. Fast gleich!","Das Dromedar hat nur einen Höcker. Auf Englisch: dromedary.","Hopp, hopp! Wo läuft das Kamel wohl hin?"]));break;
+   case"ksar":snd("tap");fx(b,"wiggle");say("Das ist ein Ksar, eine alte Speicherburg der Berber in Südtunesien. In solchen Burgen wurden auch Szenen für Star Wars gedreht!");break;
    case"baby":snd("tap");say("Pssst, das Kamel-Baby schläft. Auf Englisch heißt es baby camel.");break;
    case"ship":snd("hop");say("Das ist meine Wüsten-Rakete! Wusstest du: Teile von Star Wars wurden in der Wüste von Tunesien gedreht.");break;
    case"bubble":if(b.dataset.full){clearInterval(typeT);b.textContent=b.dataset.full;}break;

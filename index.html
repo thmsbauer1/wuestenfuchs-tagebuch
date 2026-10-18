@@ -182,6 +182,12 @@ textarea.inp{min-height:120px;resize:vertical;line-height:1.45}
 .note{font-size:.85rem;color:var(--muted);border-left:4px solid var(--gold);padding-left:10px}
 .big-num{font-family:var(--f-display);font-size:2.6rem;line-height:1;color:var(--green)}
 .list-plain{margin:0;padding-left:20px}
+/* Sprechblase unter der Szene, Fennek steht in der Wüste */
+.scene .foxspot{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:4%}
+.bubble.up{margin:14px 0 0;flex:none}
+.bubble.up::before{left:34px;top:-12px;bottom:auto;width:14px;height:14px;border-left:3px solid var(--line);border-top:3px solid var(--line);border-bottom:0;transform:rotate(45deg) translate(2px,2px)}
+/* Klare Schrift für Zahlen */
+.dates,.big-num,.day .n,.day .st,.tag,.flyer,.quiz-opt,.stats .small{font-family:var(--f-body);font-weight:800}
 /* verspielte Bewegung */
 .scene .over{pointer-events:none}
 .scene .over>*{pointer-events:auto}
@@ -295,7 +301,7 @@ function sceneSVG(){
   <g style="opacity:var(--star-op)">${stars}</g>
   <g class="sun tappable" data-act="sun" fill="var(--sun)"><rect x="128" y="6" width="12" height="12"/><rect x="130" y="4" width="8" height="16"/><rect x="126" y="8" width="16" height="8"/></g>
   <path d="M0 40H18V38H38V36H58V34H78V36H98V38H112V36H132V34H160V62H0Z" fill="var(--dune-far)"/>
-  <g class="camel-walk"><g class="hopg tappable" data-act="camel"><g class="camel-step" transform="translate(0 27)" fill="var(--camel)">${CAMEL}<rect x="-2" y="-2" width="16" height="12" fill="transparent"/></g></g></g>
+  <g class="camel-walk"><g class="hopg tappable" data-act="camel"><g transform="translate(0 27)"><g class="camel-step" fill="var(--camel)">${CAMEL}<rect x="-2" y="-2" width="16" height="12" fill="transparent"/></g></g></g></g>
   <g class="tappable" data-act="house"><rect x="138" y="27" width="16" height="9" fill="var(--house)"/><rect x="142" y="24" width="8" height="3" fill="var(--dome)"/><rect x="144" y="22" width="4" height="2" fill="var(--dome)"/><rect x="144" y="31" width="4" height="5" fill="var(--dome)"/><rect x="139" y="29" width="2" height="2" fill="var(--dome)"/><rect x="151" y="29" width="2" height="2" fill="var(--dome)"/></g>
   <g class="tappable" data-act="palm"><g transform="translate(92 0)"><rect x="14" y="22" width="22" height="24" fill="transparent"/><g fill="var(--trunk)"><rect x="24" y="30" width="2" height="4"/><rect x="25" y="34" width="2" height="4"/><rect x="26" y="38" width="2" height="6"/></g>
   <g fill="var(--palm)"><rect x="18" y="27" width="6" height="2"/><rect x="16" y="29" width="3" height="2"/><rect x="25" y="26" width="7" height="2"/><rect x="31" y="28" width="3" height="2"/><rect x="21" y="24" width="6" height="2"/><rect x="23" y="28" width="4" height="2"/><rect x="19" y="31" width="2" height="2"/><rect x="29" y="30" width="2" height="2"/></g></g></g>
@@ -413,7 +419,7 @@ function flyer(x,y,n){if(!(n>0))return;snd("coin");if(reduce())return;const d=do
 function dropDate(el){if(reduce())return;const r=el.getBoundingClientRect(),sc=el.closest(".scene").getBoundingClientRect();const d=document.createElement("div");d.className="drop";d.innerHTML=dateSVG();const top=r.top+r.height*.3;d.style.left=(r.left+r.width*.45)+"px";d.style.top=top+"px";d.style.setProperty("--dy",Math.max(16,sc.bottom-top-30)+"px");document.body.appendChild(d);setTimeout(()=>d.remove(),1000);}
 function rain(){if(reduce())return;for(let i=0;i<18;i++){const d=document.createElement("div");d.className="rain";d.innerHTML=dateSVG();d.style.left=(Math.random()*92)+"vw";d.style.animationDuration=(1.6+Math.random()*1.4)+"s";d.style.animationDelay=(Math.random()*.6)+"s";d.style.setProperty("--r",(Math.random()*720-360)+"deg");document.body.appendChild(d);setTimeout(()=>d.remove(),3400);}}
 function countUp(){const el=$("#countup");if(!el)return;const to=+el.dataset.to;if(reduce()||!to)return;const t0=performance.now(),dur=900;const tick=now=>{const k=Math.min(1,(now-t0)/dur);el.textContent="+"+Math.round(to*k);if(k<1)requestAnimationFrame(tick);};requestAnimationFrame(tick);}
-function bubbleEl(){return document.querySelector(".scene .bubble, .ask .bubble");}
+function bubbleEl(){return document.querySelector(".bubble");}
 function typeBubble(){
   const b=bubbleEl();if(!b)return;const full=b.textContent;b.dataset.full=full;clearInterval(typeT);
   if(reduce()||UI.lastBubble===full){UI.lastBubble=full;return;}
@@ -446,7 +452,7 @@ function tabs(){
   const t=[["home","📔","Tagebuch"],["erfolge","🏆","Erfolge"],["woerter","🗣️","Wörter"],["mehr","🎒","Mehr"]];
   return `<nav class="tabs" aria-label="Bereiche"><div class="in">${t.map(([id,e,l])=>`<button class="tab" data-act="tab" data-id="${id}" ${UI.view===id?'aria-current="page"':""}><span class="em" aria-hidden="true">${e}</span>${l}</button>`).join("")}</div></nav>`;
 }
-function hero(text,cls){return `<div class="scene">${sceneSVG()}<div class="over">${foxSVG(cls)}<p class="bubble" data-act="bubble">${text}</p></div></div>`;}
+function hero(text,cls){return `<div class="scene">${sceneSVG()}<div class="foxspot">${foxSVG(cls)}</div></div><p class="bubble up" data-act="bubble">${text}</p>`;}
 
 function viewSetup(){
   return `${hero("Marhaba! Ich bin ein Wüstenfuchs aus Tunesien. Ich begleite dich durch deinen Urlaub und frage dich jeden Abend, wie dein Tag war.")}

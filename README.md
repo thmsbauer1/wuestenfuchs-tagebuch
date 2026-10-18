@@ -5,7 +5,6 @@ Reisetagebuch-App mit Fennek-Begleiter für den Tunesien-Urlaub: Tagesfragen, Fo
 Läuft im Browser und lässt sich in Chrome über „App installieren“ auf den Startbildschirm legen.
 Alle Einträge und Fotos werden nur auf dem jeweiligen Gerät gespeichert, nicht in diesem Repository.
 
-## Lern-Oase (`/lernen/`)
+## Lern-Oase
 
-Tägliche Lern-Mission mit Mathe, Englisch-Vokabeln und Deutsch-Rechtschreibung. Mit jeder Mission wächst eine Oase.
-Neue Vokabeln und Aufgaben stehen in `lernen/inhalte.js`.
+Die Lern-Oase ist umgezogen: https://thmsbauer1.github.io/fennek-lernoase/

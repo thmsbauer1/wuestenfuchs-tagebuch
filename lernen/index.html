@@ -194,6 +194,10 @@ label.lbl{font-weight:800;display:block;margin-bottom:6px}
 .seg{display:flex;gap:8px;flex-wrap:wrap}
 .seg button{all:unset;cursor:pointer;padding:8px 12px;border:3px solid var(--line);background:var(--chip);font-weight:800}
 .seg button[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink)}
+/* Klare Schrift für Zahlen und Aufgaben: die Pixelschrift bleibt für Überschriften und Knöpfe */
+.dates,.q,.q.big,.answer,.key,.big-num,.wall .b,.flyer,.fb b.big,.tag,.opt,.opts.grid .opt,.subj span,.week+div{font-family:var(--f-body);font-weight:800}
+.q.big{letter-spacing:0}
+.key{font-size:1.7rem}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>

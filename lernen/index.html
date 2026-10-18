@@ -152,6 +152,7 @@ button,input{font:inherit;color:inherit}
 .opt:focus-visible{outline:3px dashed var(--accent)}
 .opts.grid{display:grid;grid-template-columns:repeat(3,1fr)}
 .opts.grid .opt{text-align:center;font-family:var(--f-display);font-size:1.5rem}
+select.inp{min-height:48px}
 .inp{width:100%;background:var(--bg);border:3px solid var(--line);padding:12px;font-size:1.3rem;font-weight:800;min-height:56px}
 .fb{border:3px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:6px}
 .fb.ok{background:var(--green);color:#fff}
@@ -226,7 +227,7 @@ function weekKeys(){const d=new Date();d.setHours(12,0,0,0);const wd=(d.getDay()
 const KEY="fennek-lernoase-v1";let memStore=null,storeOk=true;
 function load(){try{const t=localStorage.getItem(KEY);return t?JSON.parse(t):null;}catch(e){storeOk=false;return memStore;}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){storeOk=false;memStore=JSON.parse(JSON.stringify(S));}}
-function blank(){return {v:1,name:"",sound:true,newPerDay:5,len:"normal",dates:0,missions:{},m:{},en:{},de:{},hist:{},setupDone:false};}
+function blank(){return {v:1,name:"",sound:true,pitch:1.6,voice:"",newPerDay:5,len:"normal",dates:0,missions:{},m:{},en:{},de:{},hist:{},setupDone:false};}
 let S=Object.assign(blank(),load()||{});
 
 /* ---------- Pixel-Grafik ---------- */
@@ -287,10 +288,13 @@ function toast(msg){const t=document.createElement("div");t.className="toast";t.
 function bubbleEl(){return document.querySelector(".bubble");}
 function typeBubble(){const b=bubbleEl();if(!b)return;const full=b.textContent;b.dataset.full=full;clearInterval(typeT);if(reduce()||UI.lastBubble===full){UI.lastBubble=full;return;}UI.lastBubble=full;let i=0;b.textContent="";typeT=setInterval(()=>{i+=2;b.textContent=full.slice(0,i);if(i>=full.length){clearInterval(typeT);b.textContent=full;}},26);}
 function say(text,keep){const b=bubbleEl();if(!b)return;clearInterval(typeT);clearTimeout(lineT);const back=b.dataset.full||b.textContent;b.textContent=text;b.dataset.full=text;UI.lastBubble=text;if(!keep)lineT=setTimeout(()=>{if(b.isConnected){b.textContent=back;b.dataset.full=back;UI.lastBubble=back;}},3200);}
+/* Fenni-Stimme: helle, freundliche englische Stimme. Weibliche Stimmen klingen mit höherer Tonlage am ehesten nach Fennek. */
 let VOICE=null;
-function pickVoice(){try{const v=speechSynthesis.getVoices();VOICE=v.find(x=>/en[-_]GB/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}catch(e){}}
-try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice();}catch(e){}
-function speak(text){try{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/^to /,""));u.lang="en-GB";if(VOICE)u.voice=VOICE;u.rate=.85;speechSynthesis.speak(u);}catch(e){}}
+const SOFT=/female|frau|woman|girl|samantha|serena|kate|libby|sonia|hazel|susan|emma|amy|fiona|karen|moira|tessa|zira|aria|jenny|mia|maisie/i;
+function enVoices(){try{return speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang));}catch(e){return [];}}
+function pickVoice(){const v=enVoices();VOICE=(S.voice&&v.find(x=>x.voiceURI===S.voice))||v.find(x=>/en[-_]GB/i.test(x.lang)&&SOFT.test(x.name))||v.find(x=>SOFT.test(x.name))||v.find(x=>/en[-_]GB/i.test(x.lang))||v[0]||null;}
+try{speechSynthesis.onvoiceschanged=()=>{pickVoice();if(UI.view==="eltern")render();};pickVoice();}catch(e){}
+function speak(text){try{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();if(!VOICE)pickVoice();const u=new SpeechSynthesisUtterance(text.replace(/^to /,""));u.lang=VOICE?VOICE.lang:"en-GB";if(VOICE)u.voice=VOICE;u.pitch=S.pitch||1.6;u.rate=.9;speechSynthesis.speak(u);}catch(e){}}
 
 /* ---------- Englisch: Karteikasten ---------- */
 const WORDS=[];(window.INHALTE&&INHALTE.englisch||[]).forEach((u,ui)=>u.woerter.forEach((w,wi)=>WORDS.push({id:"u"+ui+"-"+wi,unit:u.unit,de:w[0],en:w[1],note:w[2]||""})));
@@ -611,6 +615,10 @@ function vParents(){
     <div><label class="lbl" for="s-name">Name</label><input class="inp" id="s-name" value="${esc(S.name)}" style="font-size:1rem"></div>
     <div><span class="lbl">Länge der Mission</span><div class="seg"><button data-act="len" data-v="kurz" aria-pressed="${S.len==="kurz"}">Kurz (ca. 8 Min.)</button><button data-act="len" data-v="normal" aria-pressed="${S.len!=="kurz"}">Normal (ca. 12 Min.)</button></div></div>
     <div><span class="lbl">Neue Vokabeln pro Tag</span><div class="seg">${[3,5,8].map(n=>`<button data-act="npd" data-v="${n}" aria-pressed="${(S.newPerDay||5)===n}">${n}</button>`).join("")}</div></div>
+    <div><span class="lbl">Fenni-Stimme fürs Englische</span>
+     ${enVoices().length?`<select class="inp" id="s-voice" style="font-size:1rem">${enVoices().map(v=>`<option value="${esc(v.voiceURI)}" ${VOICE&&VOICE.voiceURI===v.voiceURI?"selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select>`:`<p class="small muted">Dieses Gerät hat keine englische Stimme gemeldet. Unter Android hilft es, in den Einstellungen bei „Text-in-Sprache“ eine englische Stimme zu laden.</p>`}
+     <div class="seg" style="margin-top:8px">${[[1,"Normal"],[1.35,"Hell"],[1.6,"Fennek"],[1.9,"Sehr hell"]].map(([p,l])=>`<button data-act="pitch" data-v="${p}" aria-pressed="${(S.pitch||1.6)===p}">${l}</button>`).join("")}</div>
+     <button class="btn ghost" data-act="voice-test" style="margin-top:10px">🔊 Probe hören</button></div>
     <button class="btn green" data-act="save-set">Speichern</button>
     <button class="btn ${c==="wipe"?"danger":"ghost"}" data-act="wipe">${c==="wipe"?"Wirklich alles löschen? Nochmal tippen":"Fortschritt komplett zurücksetzen"}</button>
    </section>
@@ -638,6 +646,8 @@ document.addEventListener("click",async ev=>{
    case"snd":S.sound=S.sound===false;save();render();snd("pop");break;
    case"len":S.len=b.dataset.v;save();render();break;
    case"npd":S.newPerDay=+b.dataset.v;save();render();break;
+   case"pitch":S.pitch=+b.dataset.v;save();render();speak("Hello! I am Fenni.");break;
+   case"voice-test":speak("Hello! I am Fenni, the fennec fox. Let's learn English!");break;
    case"save-set":S.name=$("#s-name").value.trim();save();toast("Gespeichert!");render();break;
    case"copy-rep":{const ta=$("#rep");try{await navigator.clipboard.writeText(ta.value);toast("Kopiert!");}catch(e){ta.focus();ta.select();toast("Text markiert, jetzt kopieren.");}break;}
    case"share-rep":{const text=report();try{if(navigator.share){await navigator.share({title:"Lern-Oase Wochenbericht",text});return;}}catch(e){if(e&&e.name==="AbortError")return;}toast("Teilen geht hier nicht. Nimm „Kopieren“.");break;}
@@ -650,6 +660,7 @@ document.addEventListener("submit",ev=>{
   if(ev.target.id==="en-form"){const v=$("#en-in").value;if(!v.trim()){say("Schreib zuerst ein Wort.");return;}answer(v,null);}
 });
 document.addEventListener("input",ev=>{if(ev.target.id==="en-in")UI.input=ev.target.value;});
+document.addEventListener("change",ev=>{if(ev.target.id==="s-voice"){S.voice=ev.target.value;save();pickVoice();speak("Hello! I am Fenni.");}});
 document.addEventListener("keydown",ev=>{
   if(UI.view!=="task")return;const t=cur();if(!t)return;
   if(UI.answered&&(ev.key==="Enter")){ev.preventDefault();next();return;}

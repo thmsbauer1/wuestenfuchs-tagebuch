@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d6fb8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Wüstenfuchs-Tagebuch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: one-column phone app; pixel desert band on top, chunky square "block" panels, tab bar fixed at bottom */
+:root{
+  --bg:#f3dfb1; --panel:#fff6de; --ink:#3a2413; --muted:#7a5a3c; --line:#3a2413;
+  --accent:#1d6fb8; --accent-ink:#ffffff; --accent-dark:#124d82;
+  --terra:#c4553a; --green:#4c8a36; --green-dark:#2f5f24; --gold:#d99a14;
+  --chip:#f8e6bb; --chip-on:#1d6fb8; --chip-on-ink:#ffffff;
+  --sky:#8fd0f2; --sun:#ffd25a; --dune-far:#e8c07c; --dune-near:#d6a159; --palm:#3f7d33; --trunk:#8a5a2b; --house:#fbfbf6; --dome:#1d6fb8; --star-op:0; --camel:#b9803f;
+  --f-display:"Pixelify Sans","Courier New",monospace;
+  --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141a33; --panel:#1f2747; --ink:#f6e7c9; --muted:#b9aa8c; --line:#04060e;
+  --accent:#4da3ea; --accent-ink:#0b1022; --accent-dark:#2a6ea8;
+  --terra:#e2795d; --green:#6fbf5a; --green-dark:#3d8a31; --gold:#f2c04a;
+  --chip:#2a3360; --chip-on:#4da3ea; --chip-on-ink:#0b1022;
+  --sky:#1b2453; --sun:#f1e6b8; --dune-far:#3d3c60; --dune-near:#2d2c4a; --palm:#2e5a39; --trunk:#5b4030; --house:#c9cbe0; --dome:#2a6ea8; --star-op:1; --camel:#7a6488;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#141a33; --panel:#1f2747; --ink:#f6e7c9; --muted:#b9aa8c; --line:#04060e;
+  --accent:#4da3ea; --accent-ink:#0b1022; --accent-dark:#2a6ea8;
+  --terra:#e2795d; --green:#6fbf5a; --green-dark:#3d8a31; --gold:#f2c04a;
+  --chip:#2a3360; --chip-on:#4da3ea; --chip-on-ink:#0b1022;
+  --sky:#1b2453; --sun:#f1e6b8; --dune-far:#3d3c60; --dune-near:#2d2c4a; --palm:#2e5a39; --trunk:#5b4030; --house:#c9cbe0; --dome:#2a6ea8; --star-op:1; --camel:#7a6488;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 110px}
+h1,h2,h3,.disp{font-family:var(--f-display);font-weight:700;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:1.6rem;line-height:1.15}
+h2{font-size:1.25rem;line-height:1.2}
+h3{font-size:1.05rem}
+p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px dashed var(--accent);outline-offset:3px}
+
+/* scene band */
+.scene{position:relative;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;}
+.scene svg.bg{display:block;width:100%;height:auto;max-height:190px}
+.scene .over{position:absolute;inset:auto 0 6% 0;display:flex;align-items:flex-end;gap:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.fox{width:92px;height:92px;flex:none;animation:bob 2.6s ease-in-out infinite;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.18))}
+.fox.sm{width:64px;height:64px}
+.fox .eyes-open{animation:blinkO 5s infinite}
+.fox .eyes-closed{opacity:0;animation:blinkC 5s infinite}
+.fox.jump{animation:jump .5s ease-out 4}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-18px)}}
+@keyframes blinkO{0%,92%{opacity:1}93%,97%{opacity:0}98%,100%{opacity:1}}
+@keyframes blinkC{0%,92%{opacity:0}93%,97%{opacity:1}98%,100%{opacity:0}}
+.bubble{position:relative;background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);padding:10px 12px;font-weight:700;font-size:.98rem;line-height:1.35;margin-bottom:22px;min-width:0;flex:1}
+.bubble::before{content:"";position:absolute;left:-12px;bottom:12px;width:12px;height:12px;background:var(--panel);border-left:3px solid var(--line);border-bottom:3px solid var(--line);transform:skewY(-35deg)}
+
+/* panels */
+.panel{background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);padding:14px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.title-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:16px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center}
+.dates{font-family:var(--f-display);font-size:1.5rem;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
+.lvl{font-family:var(--f-display);font-size:1rem}
+.bar{height:16px;border:3px solid var(--line);background:var(--chip);position:relative;grid-column:1 / -1}
+.bar i{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(90deg,var(--green) 0 10px,var(--green-dark) 10px 12px)}
+.date-ico{width:22px;height:22px;flex:none}
+
+/* day grid */
+.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (min-width:560px){.days{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.day{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);padding:10px;min-height:118px;position:relative}
+.day:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--line)}
+.day:focus-visible{outline:3px dashed var(--accent);outline-offset:3px}
+.day .n{font-family:var(--f-display);font-size:1.15rem}
+.day .d{font-size:.8rem;color:var(--muted);font-weight:700}
+.day .st{margin-top:auto;font-size:.8rem;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.day.today{background:var(--chip)}
+.day .thumb{position:absolute;top:8px;right:8px;width:40px;height:40px;object-fit:cover;border:2px solid var(--line)}
+.tag{display:inline-block;font-family:var(--f-display);font-size:.75rem;padding:1px 6px;border:2px solid var(--line)}
+.tag.done{background:var(--green);color:#fff}
+.tag.half{background:var(--gold);color:#2a1a08}
+.tag.empty{background:transparent;color:var(--muted)}
+
+/* buttons */
+.btn{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;font-family:var(--f-display);font-weight:700;font-size:1.05rem;padding:12px 16px;background:var(--accent);color:var(--accent-ink);border:3px solid var(--line);box-shadow:inset 0 -5px 0 var(--accent-dark),3px 3px 0 var(--line);display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:50px}
+.btn:active{transform:translate(2px,2px);box-shadow:inset 0 -3px 0 var(--accent-dark),1px 1px 0 var(--line)}
+.btn:focus-visible{outline:3px dashed var(--ink);outline-offset:3px}
+.btn.big{width:100%;font-size:1.2rem;min-height:58px}
+.btn.green{background:var(--green);color:#fff;box-shadow:inset 0 -5px 0 var(--green-dark),3px 3px 0 var(--line)}
+.btn.ghost{background:var(--panel);color:var(--ink);box-shadow:inset 0 -5px 0 var(--chip),3px 3px 0 var(--line)}
+.btn.danger{background:var(--terra);color:#fff;box-shadow:inset 0 -5px 0 rgba(0,0,0,.25),3px 3px 0 var(--line)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.linkbtn{all:unset;cursor:pointer;font-weight:800;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:9px 12px;background:var(--chip);border:3px solid var(--line);font-weight:800;font-size:.98rem;min-height:46px}
+.chip .em{font-size:1.25rem;line-height:1}
+.chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)}
+.chip:focus-visible{outline:3px dashed var(--accent);outline-offset:3px}
+.big-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}
+.big-choices .chip{flex-direction:column;justify-content:center;min-height:96px;font-size:.95rem;text-align:center}
+.big-choices .chip .em{font-size:2.2rem}
+
+/* inputs */
+label.lbl{font-weight:800;display:block;margin-bottom:6px}
+.inp{width:100%;background:var(--bg);border:3px solid var(--line);padding:10px 12px;font-size:1rem;min-height:48px}
+textarea.inp{min-height:120px;resize:vertical;line-height:1.45}
+
+/* entry flow */
+.ask{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
+.ask .bubble{margin-bottom:14px}
+.prog{display:flex;gap:4px;margin-top:14px}
+.prog i{flex:1;height:10px;border:2px solid var(--line);background:var(--chip)}
+.prog i.on{background:var(--green)}
+.prog i.cur{background:var(--gold)}
+.navrow{display:flex;gap:12px;margin-top:4px}
+.navrow .btn{flex:1}
+.stars{display:flex;gap:6px;justify-content:center}
+.star{all:unset;cursor:pointer;width:52px;height:52px;display:grid;place-items:center}
+.star svg{width:46px;height:46px}
+.star:focus-visible{outline:3px dashed var(--accent)}
+.photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ph{position:relative;aspect-ratio:1;max-width:100%;border:3px solid var(--line);background:var(--chip);overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .x{all:unset;cursor:pointer;position:absolute;top:4px;right:4px;background:var(--terra);color:#fff;font-family:var(--f-display);font-size:.8rem;padding:2px 7px;border:2px solid var(--line)}
+.ph.add{display:grid;place-items:center;cursor:pointer;font-family:var(--f-display);text-align:center;padding:6px;font-size:.9rem}
+.ph.add:focus-within{outline:3px dashed var(--accent)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.quiz-opt{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;padding:12px 14px;background:var(--chip);border:3px solid var(--line);font-weight:800;min-height:50px}
+.quiz-opt.right{background:var(--green);color:#fff}
+.quiz-opt.wrong{background:var(--terra);color:#fff}
+.quiz-opt[disabled]{cursor:default}
+.word{display:flex;align-items:center;gap:12px;padding:10px 12px;border:3px dashed var(--line);background:var(--bg)}
+.word b{font-family:var(--f-display);font-size:1.3rem}
+
+/* achievements */
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ach{display:flex;gap:10px;align-items:center;padding:10px;border:3px solid var(--line);background:var(--panel);box-shadow:3px 3px 0 var(--line);min-width:0}
+.ach .em{font-size:1.9rem;line-height:1;flex:none}
+.ach b{font-family:var(--f-display);font-weight:700;display:block;line-height:1.15}
+.ach span{font-size:.8rem;color:var(--muted);display:block;line-height:1.25}
+.ach.locked{background:transparent;box-shadow:none;border-style:dashed}
+.ach.locked .em{filter:grayscale(1);opacity:.35}
+.ach.new{background:var(--gold);color:#2a1a08}
+.ach.new span{color:#4a3210}
+
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:3px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabs .in{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:640px}
+.tab{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 10px;font-family:var(--f-display);font-size:.8rem;color:var(--muted)}
+.tab .em{font-size:1.35rem;line-height:1}
+.tab[aria-current="page"]{color:var(--ink);background:var(--chip);box-shadow:inset 0 4px 0 var(--accent)}
+.tab:focus-visible{outline:3px dashed var(--accent);outline-offset:-4px}
+
+/* misc */
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);font-family:var(--f-display);padding:10px 16px;border:3px solid var(--line);z-index:40;max-width:calc(100% - 32px);text-align:center}
+.modal{position:fixed;inset:0;background:rgba(10,8,20,.55);z-index:50;display:grid;place-items:center;padding:16px}
+.modal .panel{width:100%;max-width:520px;max-height:85vh;overflow:auto}
+.note{font-size:.85rem;color:var(--muted);border-left:4px solid var(--gold);padding-left:10px}
+.big-num{font-family:var(--f-display);font-size:2.6rem;line-height:1;color:var(--green)}
+.list-plain{margin:0;padding-left:20px}
+/* verspielte Bewegung */
+.scene .over{pointer-events:none}
+.scene .over>*{pointer-events:auto}
+.tappable,.fox,.bubble[data-act]{cursor:pointer}
+.camel-walk{animation:walk 42s linear infinite}
+.camel-step{animation:camelstep .6s steps(2) infinite}
+@keyframes walk{from{transform:translateX(-16px)}to{transform:translateX(170px)}}
+@keyframes camelstep{50%{transform:translateY(-.6px)}}
+.hopg.hop{animation:chop .5s ease-out}
+@keyframes chop{40%{transform:translateY(-7px)}}
+.wiggle{animation:wiggle .5s steps(4)}
+@keyframes wiggle{25%{transform:translateX(-1.2px)}75%{transform:translateX(1.2px)}}
+.sun{transform-box:fill-box;transform-origin:center}
+.sun.spin{animation:spin .8s steps(8)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fox.hop{animation:hop .45s ease-out}
+@keyframes hop{40%{transform:translateY(-12px) scale(1.06,.94)}}
+.fox.shake{animation:shake .45s steps(6)}
+@keyframes shake{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+.chip[aria-pressed="true"],.star[aria-pressed="true"]{animation:pop .3s ease-out}
+@keyframes pop{50%{transform:scale(1.1)}}
+.enter{animation:slidein .28s ease-out}
+.enter-back{animation:slideback .28s ease-out}
+@keyframes slidein{from{transform:translateX(28px);opacity:.3}}
+@keyframes slideback{from{transform:translateX(-28px);opacity:.3}}
+.day{animation:tilein .35s ease-out backwards}
+@keyframes tilein{from{transform:scale(.85)}}
+.flyer{position:fixed;z-index:45;pointer-events:none;display:flex;align-items:center;gap:4px;font-family:var(--f-display);font-weight:700;font-size:1.3rem;color:var(--green);text-shadow:2px 2px 0 var(--panel);animation:fly .9s ease-out forwards}
+@keyframes fly{to{transform:translateY(-70px);opacity:0}}
+.drop{position:fixed;z-index:45;pointer-events:none;animation:drop .9s cubic-bezier(.5,0,1,1) forwards}
+@keyframes drop{70%{transform:translateY(var(--dy));opacity:1}85%{transform:translateY(calc(var(--dy) - 8px))}100%{transform:translateY(var(--dy));opacity:0}}
+.rain{position:fixed;top:-30px;z-index:45;pointer-events:none;animation:rain linear forwards}
+@keyframes rain{to{transform:translateY(110vh) rotate(var(--r))}}
+.snd{all:unset;cursor:pointer;font-size:1.2rem;padding:4px 8px;border:3px solid var(--line);background:var(--panel);line-height:1.2;box-shadow:2px 2px 0 var(--line)}
+.snd:focus-visible{outline:3px dashed var(--accent);outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<script>window.__SW__=true;</script>
+<div id="app" class="wrap"></div>
+<div id="tabs"></div>
+<div id="layer"></div>
+
+<script>
+"use strict";
+/* ---------- Daten ---------- */
+const MOODS=[{id:"super",e:"🤩",t:"Mega"},{id:"gut",e:"😊",t:"Gut"},{id:"ok",e:"😐",t:"Geht so"},{id:"muede",e:"😴",t:"Müde"},{id:"doof",e:"😕",t:"Nicht so"}];
+const MOOD_REPLY={super:"Yalla! Das klingt nach einem Spitzentag!",gut:"Schön! Erzähl mir mehr.",ok:"Okay. Manche Tage sind einfach so.",muede:"Müde Füchse machen es kurz. Nur ein paar Fragen!",doof:"Oh. Morgen wird bestimmt besser. Erzähl trotzdem kurz."};
+const WEATHER=[{id:"heiss",e:"🔥",t:"Super heiß"},{id:"sonnig",e:"☀️",t:"Sonnig"},{id:"windig",e:"💨",t:"Windig"},{id:"wolkig",e:"☁️",t:"Wolkig"},{id:"regen",e:"🌧️",t:"Regen"}];
+const ACTS=[["pool","🏊","Pool"],["meer","🌊","Meer"],["strand","🏖️","Strand"],["kamel","🐪","Kamelritt"],["souk","🛍️","Souk / Markt"],["ausflug","🚌","Ausflug"],["ruinen","🏛️","Ruinen"],["sport","⚽","Sport"],["spielen","🎮","Spielen"],["chillen","😎","Chillen"],["show","🎉","Show / Animation"],["eis","🍦","Eis essen"]];
+const ANIMALS=[["kamel","🐪","Kamel"],["katze","🐈","Katze"],["hund","🐕","Hund"],["esel","🫏","Esel"],["pferd","🐎","Pferd"],["eidechse","🦎","Eidechse"],["fische","🐟","Fische"],["voegel","🐦","Vögel"],["fennek","🦊","Fennek"],["schildkroete","🐢","Schildkröte"],["krebs","🦀","Krebs"]];
+const FOODS=[["couscous","🥘","Couscous"],["brik","🥟","Brik"],["datteln","🌴","Datteln"],["fisch","🐟","Fisch"],["fladenbrot","🫓","Fladenbrot"],["pizza","🍕","Pizza"],["pommes","🍟","Pommes"],["melone","🍉","Melone"],["eis","🍦","Eis"],["suess","🍬","Süßes"]];
+const QUIZ=[
+ {q:"Welches Land ist das nördlichste in ganz Afrika?",o:["Ägypten","Tunesien","Marokko"],a:1,f:"Bei der Stadt Bizerte liegt der nördlichste Punkt Afrikas. Bis zur italienischen Insel Sizilien sind es von Tunesien aus nur rund 145 Kilometer übers Meer.",w:["Marhaba","Hallo"]},
+ {q:"Warum hat der Fennek so riesige Ohren?",o:["Damit er fliegen kann","Um Hitze loszuwerden und Beute im Sand zu hören","Damit kein Sand in die Augen kommt"],a:1,f:"Über die großen Ohren gibt der Fennek Wärme ab. Und er hört damit sogar Insekten, die unter dem Sand krabbeln. Er ist der kleinste Fuchs der Welt.",w:["Schukran","Danke"]},
+ {q:"Wie viele Höcker haben die Kamele in Tunesien?",o:["Einen","Zwei","Drei"],a:0,f:"In Nordafrika leben Dromedare mit einem Höcker. Darin speichern sie Fett, kein Wasser. So halten sie lange ohne Futter durch.",w:["Dschamal","Kamel"]},
+ {q:"Welcher berühmte Film wurde zum Teil in Tunesien gedreht?",o:["Star Wars","Harry Potter","Findet Nemo"],a:0,f:"Der Wüstenplanet Tatooine ist nach der tunesischen Stadt Tataouine benannt. Einige Filmkulissen stehen bis heute in der Wüste.",w:["Yalla","Los geht's!"]},
+ {q:"Was ist Couscous?",o:["Ein Tanz","Kleine Kügelchen aus Grieß","Eine alte Münze"],a:1,f:"Couscous ist das Nationalgericht Tunesiens. Es wird aus Hartweizengrieß gemacht und oft mit Gemüse, Fisch oder Fleisch gegessen.",w:["Schams","Sonne"]},
+ {q:"Wie heißt das Geld in Tunesien?",o:["Euro","Dinar","Peso"],a:1,f:"Ein Dinar hat 1000 Millimes. Dinar darf man übrigens nicht mit nach Hause nehmen, man tauscht sie vor dem Abflug zurück.",w:["Bahr","Meer"]},
+ {q:"Welche berühmte Stadt lag früher ganz in der Nähe von Tunis?",o:["Atlantis","Karthago","Troja"],a:1,f:"Von Karthago aus zog der Feldherr Hannibal vor über 2200 Jahren mit Elefanten bis über die Alpen.",w:["Sahra","Wüste"]},
+ {q:"Was ist der Chott el Djerid?",o:["Ein riesiger Salzsee","Ein Berg","Ein Fisch"],a:0,f:"Der Chott el Djerid ist der größte Salzsee der Sahara. Meist ist er ausgetrocknet und glitzert dann weiß wie Schnee.",w:["Ma'a salama","Auf Wiedersehen"]}
+];
+const LEVELS=[[0,"Sandkorn"],[30,"Muschelsammler"],[90,"Kamelreiter"],[170,"Oasen-Entdecker"],[270,"Wüstenfuchs"],[380,"Sahara-Legende"]];
+const STEPS=["mood","weather","did","animals","food","highlight","photos","stars","quiz"];
+
+/* ---------- Pixel-Fennek ---------- */
+const FOX=[
+".oo..............oo.",
+".ofo............ofo.",
+".opfo..........ofpo.",
+".oppfo........ofppo.",
+".opppfo......ofpppo.",
+".oppppfoooooofppppo.",
+".oppffffffffffffppo.",
+".opffffffffffffffpo.",
+"..offffffffffffffo..",
+"..offweffffffweffo..",
+"..offeeffffffeeffo..",
+"..ofkffllllllffkfo..",
+"...offllllllllffo...",
+"...offlllnnlllffo...",
+"....ofllllllllfo....",
+".....oooooooooo.....",
+"....offllllllffo....",
+"...offfllllllfffo.oo",
+"...offfllllllfffoofo",
+"...oooooooooooooooo."];
+const FOXC={o:"#5a3a22",f:"#e9b46f",l:"#fdebc8",p:"#f4a3a0",e:"#1d1a17",w:"#ffffff",n:"#1d1a17",k:"#f08a7e"};
+let FOX_INNER=null;
+function foxSVG(cls){
+  if(!FOX_INNER){
+    let body="",open="",closed="";
+    FOX.forEach((row,y)=>{[...row].forEach((c,x)=>{
+      if(c===".")return;
+      const r=(col)=>`<rect x="${x}" y="${y}" width="1.04" height="1.04" fill="${col}"/>`;
+      if((c==="e"||c==="w")&&(y===9||y===10)){open+=r(FOXC[c]);closed+=r(y===10?FOXC.o:FOXC.f);}
+      else body+=r(FOXC[c]);
+    });});
+    FOX_INNER=`${body}<g class="eyes-open">${open}</g><g class="eyes-closed">${closed}</g>`;
+  }
+  return `<svg class="fox ${cls||""}" data-act="fox" viewBox="0 0 20 20" shape-rendering="crispEdges" role="img" aria-label="Fennek">${FOX_INNER}</svg>`;
+}
+function dateSVG(){return `<svg class="date-ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="1" fill="#3f7d33"/><rect x="2" y="1" width="4" height="1" fill="#7a3e14"/><rect x="1" y="2" width="6" height="4" fill="#9a5220"/><rect x="2" y="2" width="1" height="2" fill="#c9783a"/><rect x="2" y="6" width="4" height="1" fill="#7a3e14"/></svg>`;}
+function starSVG(on){const c=on?"var(--gold)":"var(--chip)";return `<svg viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><path d="M4 0h1v2h1v1h3v1h-1v1h-1v2h1v2h-1v-1h-1v-1h-1v1h-1v1h-1v-2h1v-2h-1v-1h-1v-1h3v-1h1z" fill="${c}" stroke="var(--line)" stroke-width=".5"/></svg>`;}
+const CAMEL=(()=>{const m=["..........##","....##....##","...####...#.",".########.#.","###########.",".#########..",".#.#...#.#..",".#.#...#.#.."];let r="";m.forEach((row,y)=>[...row].forEach((c,x)=>{if(c==="#")r+=`<rect x="${x}" y="${y}" width="1.04" height="1.04"/>`;}));return r;})();
+function sceneSVG(){
+  let stars="";[[8,6],[22,12],[40,5],[57,14],[72,7],[88,4],[104,12],[118,6],[150,14],[66,20],[30,22]].forEach(([x,y])=>stars+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#fff8d0"/>`);
+  return `<svg class="bg" viewBox="0 0 160 62" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges" aria-hidden="true">
+  <rect width="160" height="62" fill="var(--sky)"/>
+  <g style="opacity:var(--star-op)">${stars}</g>
+  <g class="sun tappable" data-act="sun" fill="var(--sun)"><rect x="128" y="6" width="12" height="12"/><rect x="130" y="4" width="8" height="16"/><rect x="126" y="8" width="16" height="8"/></g>
+  <path d="M0 40H18V38H38V36H58V34H78V36H98V38H112V36H132V34H160V62H0Z" fill="var(--dune-far)"/>
+  <g class="camel-walk"><g class="hopg tappable" data-act="camel"><g class="camel-step" transform="translate(0 27)" fill="var(--camel)">${CAMEL}<rect x="-2" y="-2" width="16" height="12" fill="transparent"/></g></g></g>
+  <g class="tappable" data-act="house"><rect x="138" y="27" width="16" height="9" fill="var(--house)"/><rect x="142" y="24" width="8" height="3" fill="var(--dome)"/><rect x="144" y="22" width="4" height="2" fill="var(--dome)"/><rect x="144" y="31" width="4" height="5" fill="var(--dome)"/><rect x="139" y="29" width="2" height="2" fill="var(--dome)"/><rect x="151" y="29" width="2" height="2" fill="var(--dome)"/></g>
+  <g class="tappable" data-act="palm"><g transform="translate(92 0)"><rect x="14" y="22" width="22" height="24" fill="transparent"/><g fill="var(--trunk)"><rect x="24" y="30" width="2" height="4"/><rect x="25" y="34" width="2" height="4"/><rect x="26" y="38" width="2" height="6"/></g>
+  <g fill="var(--palm)"><rect x="18" y="27" width="6" height="2"/><rect x="16" y="29" width="3" height="2"/><rect x="25" y="26" width="7" height="2"/><rect x="31" y="28" width="3" height="2"/><rect x="21" y="24" width="6" height="2"/><rect x="23" y="28" width="4" height="2"/><rect x="19" y="31" width="2" height="2"/><rect x="29" y="30" width="2" height="2"/></g></g></g>
+  <path d="M0 50H14V48H34V46H54V48H70V50H94V48H110V46H130V48H160V62H0Z" fill="var(--dune-near)"/>
+  </svg>`;
+}
+
+/* ---------- Speicher (IndexedDB, mit Notfall im Arbeitsspeicher) ---------- */
+const Store=(()=>{
+  let dbp=null,ok=true;const mem=new Map();
+  function open(){
+    if(dbp)return dbp;
+    dbp=new Promise((res,rej)=>{try{const r=indexedDB.open("wuestenfuchs-tagebuch",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}catch(e){rej(e);}});
+    return dbp;
+  }
+  async function get(k){try{const db=await open();return await new Promise((res,rej)=>{const q=db.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});}catch(e){ok=false;return mem.get(k);}}
+  async function set(k,v){try{const db=await open();await new Promise((res,rej)=>{const tx=db.transaction("kv","readwrite");tx.objectStore("kv").put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});}catch(e){ok=false;mem.set(k,v);}}
+  async function del(k){try{const db=await open();await new Promise((res,rej)=>{const tx=db.transaction("kv","readwrite");tx.objectStore("kv").delete(k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});}catch(e){mem.delete(k);}}
+  return {get,set,del,get ok(){return ok;}};
+})();
+
+/* ---------- Zustand ---------- */
+let S=null;              // gespeicherter Zustand
+const UI={view:"home",day:1,step:0,confirm:null,newAch:[],flash:""};
+const urlCache=new Map();
+function blank(){return {v:1,traveller:"",fox:"Fenni",days:6,start:"",entries:{},seenAch:[],persisted:false,sound:true};}
+function E(n){if(!S.entries[n])S.entries[n]={did:[],animals:[],food:[],photos:[]};return S.entries[n];}
+let saveT=null;
+function save(now){clearTimeout(saveT);const run=()=>Store.set("state",JSON.parse(JSON.stringify(S)));if(now)return run();saveT=setTimeout(run,250);}
+
+/* ---------- Logik: Punkte, Level, Erfolge ---------- */
+function filled(e,k){if(!e)return false;switch(k){
+  case"mood":return !!e.mood;case"weather":return !!e.weather;
+  case"did":return (e.did&&e.did.length>0)||!!(e.didText&&e.didText.trim());
+  case"animals":return (e.animals&&e.animals.length>0)||!!(e.animalText&&e.animalText.trim());
+  case"food":return (e.food&&e.food.length>0)||!!(e.foodText&&e.foodText.trim());
+  case"highlight":return !!(e.highlight&&e.highlight.trim());
+  case"photos":return !!(e.photos&&e.photos.length);
+  case"stars":return !!e.stars;case"quiz":return !!e.quiz;}return false;}
+function complete(e){return filled(e,"mood")&&filled(e,"highlight")&&filled(e,"quiz");}
+function started(e){return STEPS.some(k=>filled(e,k));}
+function dayPoints(e){
+  if(!e)return 0;let p=0;
+  ["mood","weather","did","animals","food","stars"].forEach(k=>{if(filled(e,k))p+=5;});
+  if(filled(e,"highlight"))p+=10;
+  p+=Math.min(3,(e.photos||[]).length)*5;
+  if(e.quiz)p+=e.quiz.correct?10:3;
+  if(complete(e))p+=15;
+  return p;
+}
+function total(){let t=0;for(let n=1;n<=S.days;n++)t+=dayPoints(S.entries[n]);return t;}
+function level(t){let i=0;LEVELS.forEach((l,j)=>{if(t>=l[0])i=j;});const cur=LEVELS[i],nxt=LEVELS[i+1];return {name:cur[1],idx:i,next:nxt?nxt[1]:null,need:nxt?nxt[0]:null,pct:nxt?Math.round((t-cur[0])/(nxt[0]-cur[0])*100):100};}
+function quizFor(n){return QUIZ[(n-1)%QUIZ.length];}
+function stats(){
+  const ents=[];for(let n=1;n<=S.days;n++)if(S.entries[n])ents.push(S.entries[n]);
+  const animals=new Set();let photos=0,right=0,foodDays=0,done=0,words=0;
+  ents.forEach(e=>{(e.animals||[]).forEach(a=>animals.add(a));photos+=(e.photos||[]).length;if(e.quiz&&e.quiz.correct)right++;if(e.quiz)words++;if(filled(e,"food"))foodDays++;if(complete(e))done++;});
+  return {animals,photos,right,foodDays,done,words,any:ents.some(started)};
+}
+const ACH=[
+ {id:"start",e:"📖",t:"Erste Seite",d:"Den ersten Tag aufgeschrieben",ok:s=>s.done>=1},
+ {id:"foto",e:"📸",t:"Fotograf",d:"Das erste Foto eingeklebt",ok:s=>s.photos>=1},
+ {id:"album",e:"🖼️",t:"Fotoalbum",d:"6 Fotos gesammelt",ok:s=>s.photos>=6},
+ {id:"kamel",e:"🐪",t:"Kamel-Spotter",d:"Ein Kamel gesehen",ok:s=>s.animals.has("kamel")},
+ {id:"tiere",e:"🦎",t:"Tierfreund",d:"5 verschiedene Tierarten entdeckt",ok:s=>s.animals.size>=5},
+ {id:"essen",e:"🥘",t:"Feinschmecker",d:"An 3 Tagen Essen notiert",ok:s=>s.foodDays>=3},
+ {id:"quiz3",e:"🧠",t:"Quiz-Kopf",d:"3 Quizfragen richtig",ok:s=>s.right>=3},
+ {id:"woerter",e:"🗣️",t:"Wortsammler",d:"5 arabische Wörter gesammelt",ok:s=>s.words>=5},
+ {id:"drei",e:"🔥",t:"Dranbleiber",d:"3 Tage komplett",ok:s=>s.done>=3},
+ {id:"alle",e:"🏆",t:"Reise-Chronist",d:"Alle Tage komplett",ok:s=>s.done>=S.days}
+];
+function unlocked(){const s=stats();return ACH.filter(a=>a.ok(s)).map(a=>a.id);}
+
+/* ---------- Hilfen ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function gen(name){if(!name)return "";return /[sßxz]$/i.test(name)?name+"’":name+"s";}
+function dayDate(n){if(!S.start)return null;const d=new Date(S.start+"T12:00:00");if(isNaN(d))return null;d.setDate(d.getDate()+n-1);return d;}
+function dayLabel(n){const d=dayDate(n);return d?d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"}):"";}
+function todayN(){
+  if(S.start){const s=new Date(S.start+"T12:00:00"),t=new Date();t.setHours(12,0,0,0);const n=Math.round((t-s)/864e5)+1;if(n>=1&&n<=S.days)return n;}
+  for(let n=1;n<=S.days;n++)if(!complete(S.entries[n]))return n;
+  return S.days;
+}
+function toast(msg){const l=$("#layer");const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=msg;l.appendChild(t);setTimeout(()=>t.remove(),2600);}
+async function photoURL(id){if(urlCache.has(id))return urlCache.get(id);const b=await Store.get("photo:"+id);if(!b)return "";const u=URL.createObjectURL(b);urlCache.set(id,u);return u;}
+function inFrame(){try{return window.self!==window.top;}catch(e){return true;}}
+async function compress(file){
+  let bmp;
+  try{bmp=await createImageBitmap(file,{imageOrientation:"from-image"});}
+  catch(e){bmp=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});}
+  const max=1280,w=bmp.width,h=bmp.height,sc=Math.min(1,max/Math.max(w,h));
+  const c=document.createElement("canvas");c.width=Math.round(w*sc);c.height=Math.round(h*sc);
+  c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+  return await new Promise(res=>c.toBlob(b=>res(b||file),"image/jpeg",0.82));
+}
+function blobToDataURL(b){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b);});}
+async function dataURLToBlob(u){const r=await fetch(u);return await r.blob();}
+function pick(list,id){const x=list.find(i=>(i.id||i[0])===id);return x?{e:x.e||x[1],t:x.t||x[2]}:null;}
+
+/* ---------- Spaß: Töne und Bewegung ---------- */
+let AC=null,typeT=null,lineT=null;
+const SEQ={tap:[[660,.05]],pop:[[523,.05],[784,.07]],coin:[[988,.06],[1319,.14]],right:[[523,.09],[659,.09],[784,.09],[1047,.22]],wrong:[[392,.12],[311,.2]],hop:[[440,.04],[660,.05],[880,.07]],fanfare:[[523,.1],[523,.1],[784,.1],[1047,.3]],drop:[[880,.04],[440,.08]]};
+function snd(k){
+  if(!S||S.sound===false)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();
+    let t=AC.currentTime+.01;
+    for(const [f,d] of (SEQ[k]||[])){const o=AC.createOscillator(),g=AC.createGain();o.type="square";o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.0008,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.03);t+=d*.92;}
+  }catch(e){}
+}
+const reduce=()=>!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+function fx(el,cls){if(!el)return;el.classList.remove(cls);el.getBoundingClientRect();el.classList.add(cls);el.addEventListener("animationend",function h(ev){if(ev.target!==el)return;el.classList.remove(cls);el.removeEventListener("animationend",h);});}
+function isDark(){return getComputedStyle(document.documentElement).getPropertyValue("--star-op").trim()==="1";}
+function flyer(x,y,n){if(!(n>0))return;snd("coin");if(reduce())return;const d=document.createElement("div");d.className="flyer";d.innerHTML=dateSVG()+"<span>+"+n+"</span>";d.style.left=Math.max(8,Math.min(innerWidth-90,x-20))+"px";d.style.top=Math.max(8,y-34)+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),1000);}
+function dropDate(el){if(reduce())return;const r=el.getBoundingClientRect(),sc=el.closest(".scene").getBoundingClientRect();const d=document.createElement("div");d.className="drop";d.innerHTML=dateSVG();const top=r.top+r.height*.3;d.style.left=(r.left+r.width*.45)+"px";d.style.top=top+"px";d.style.setProperty("--dy",Math.max(16,sc.bottom-top-30)+"px");document.body.appendChild(d);setTimeout(()=>d.remove(),1000);}
+function rain(){if(reduce())return;for(let i=0;i<18;i++){const d=document.createElement("div");d.className="rain";d.innerHTML=dateSVG();d.style.left=(Math.random()*92)+"vw";d.style.animationDuration=(1.6+Math.random()*1.4)+"s";d.style.animationDelay=(Math.random()*.6)+"s";d.style.setProperty("--r",(Math.random()*720-360)+"deg");document.body.appendChild(d);setTimeout(()=>d.remove(),3400);}}
+function countUp(){const el=$("#countup");if(!el)return;const to=+el.dataset.to;if(reduce()||!to)return;const t0=performance.now(),dur=900;const tick=now=>{const k=Math.min(1,(now-t0)/dur);el.textContent="+"+Math.round(to*k);if(k<1)requestAnimationFrame(tick);};requestAnimationFrame(tick);}
+function bubbleEl(){return document.querySelector(".scene .bubble, .ask .bubble");}
+function typeBubble(){
+  const b=bubbleEl();if(!b)return;const full=b.textContent;b.dataset.full=full;clearInterval(typeT);
+  if(reduce()||UI.lastBubble===full){UI.lastBubble=full;return;}
+  UI.lastBubble=full;let i=0;b.textContent="";
+  typeT=setInterval(()=>{i+=2;b.textContent=full.slice(0,i);if(i>=full.length){clearInterval(typeT);b.textContent=full;}},28);
+}
+function say(text){const b=bubbleEl();if(!b)return;clearInterval(typeT);clearTimeout(lineT);const back=b.dataset.full||b.textContent;b.textContent=text;lineT=setTimeout(()=>{if(b.isConnected)b.textContent=back;},3200);}
+const FOX_LINES=["Hihi, das kitzelt!","Weißt du, warum ich so große Ohren habe? Damit ich dich besser hören kann!","Wir Fenneks haben Fell unter den Pfoten. So verbrennen wir uns nicht am heißen Sand.","Tagsüber schlafe ich in meinem Bau unter dem Sand. Nachts bin ich hellwach!","Fenneks trinken fast nie. Das Wasser holen wir uns aus dem Essen.","Was ist gelb und kann nicht schwimmen? Ein Bagger. Hihi!","Warum sind Wüstenfüchse so gut in Mathe? Weil sie jede Lösung ausgraben!","Yalla, yalla! Erzähl mir was!","Schukran fürs Antippen!","Pssst … hast du schon das Kamel gesehen, das durch die Wüste läuft?","Tipp mal die Palme an!"];
+function afterRender(v){
+  typeBubble();
+  if(UI.fx){fx($(".ask .fox")||$(".scene .fox"),UI.fx);UI.fx=null;}
+  UI.anim=null;
+  if(v==="reward"&&UI.celebrate){UI.celebrate=false;rain();countUp();snd("fanfare");}
+}
+function gain(before,x,y){flyer(x,y,dayPoints(E(UI.day))-before);}
+
+/* ---------- Ansichten ---------- */
+function render(){
+  const app=$("#app");
+  if(!S.setupDone){app.innerHTML=viewSetup();$("#tabs").innerHTML="";return;}
+  const v=UI.view;
+  app.innerHTML=v==="entry"?viewEntry():v==="reward"?viewReward():v==="erfolge"?viewAch():v==="woerter"?viewWords():v==="mehr"?viewMore():viewHome();
+  $("#tabs").innerHTML=(v==="entry")?"":tabs();
+  if(v==="home"||v==="entry"||v==="reward")hydratePhotos();
+  afterRender(v);
+  window.scrollTo(0,0);
+}
+function rerenderKeepScroll(){const y=window.scrollY;const fn=window.scrollTo;window.scrollTo=()=>{};render();window.scrollTo=fn;window.scrollTo(0,y);}
+function tabs(){
+  const t=[["home","📔","Tagebuch"],["erfolge","🏆","Erfolge"],["woerter","🗣️","Wörter"],["mehr","🎒","Mehr"]];
+  return `<nav class="tabs" aria-label="Bereiche"><div class="in">${t.map(([id,e,l])=>`<button class="tab" data-act="tab" data-id="${id}" ${UI.view===id?'aria-current="page"':""}><span class="em" aria-hidden="true">${e}</span>${l}</button>`).join("")}</div></nav>`;
+}
+function hero(text,cls){return `<div class="scene">${sceneSVG()}<div class="over">${foxSVG(cls)}<p class="bubble" data-act="bubble">${text}</p></div></div>`;}
+
+function viewSetup(){
+  return `${hero("Marhaba! Ich bin ein Wüstenfuchs aus Tunesien. Ich begleite dich durch deinen Urlaub und frage dich jeden Abend, wie dein Tag war.")}
+  <div class="stack" style="margin-top:18px">
+   <h1>Dein Reisetagebuch</h1>
+   <form class="panel stack" id="setup">
+    <div><label class="lbl" for="f-name">Wie heißt du?</label><input class="inp" id="f-name" autocomplete="given-name" placeholder="Dein Vorname" value="${esc(S.traveller)}"></div>
+    <div><label class="lbl" for="f-fox">Wie soll der Fennek heißen?</label><input class="inp" id="f-fox" value="${esc(S.fox)}" maxlength="20"></div>
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1;min-width:140px"><label class="lbl" for="f-start">Erster Urlaubstag</label><input class="inp" type="date" id="f-start" value="${esc(S.start)}"></div>
+      <div style="width:110px"><label class="lbl" for="f-days">Tage</label><input class="inp" type="number" id="f-days" min="1" max="21" value="${S.days}"></div>
+    </div>
+    <button class="btn big green" type="submit">Los geht's!</button>
+   </form>
+   <p class="note">Alles, was du hier schreibst, bleibt auf diesem Gerät. Niemand sonst kann es lesen, außer du schickst es selbst.</p>
+  </div>`;
+}
+
+function viewHome(){
+  const t=total(),L=level(t),n=todayN(),e=S.entries[n],s=stats();
+  const name=S.traveller;
+  let msg;
+  if(s.done>=S.days)msg=`Wow, alle ${S.days} Tage sind voll! Unter „Mehr“ kannst du dein Erinnerungsbuch speichern.`;
+  else if(!s.any)msg=`Marhaba${name?", "+esc(name):""}! Ich bin ${esc(S.fox)}. Erzählst du mir jeden Abend von deinem Tag?`;
+  else if(complete(e))msg=`Tag ${n} ist im Buch! Schlaf gut. Morgen wartet eine neue Quizfrage.`;
+  else if(started(e))msg=`Tag ${n} ist halb fertig. Machen wir den Rest?`;
+  else msg=`Na, wie war Tag ${n}? Ich bin schon gespannt${name?", "+esc(name):""}!`;
+  let cards="";
+  for(let i=1;i<=S.days;i++){
+    const d=S.entries[i],st=complete(d)?'<span class="tag done">fertig</span>':started(d)?'<span class="tag half">angefangen</span>':'<span class="tag empty">leer</span>';
+    const mood=d&&d.mood?pick(MOODS,d.mood).e:"";
+    const ph=d&&d.photos&&d.photos[0]?`<img class="thumb" data-photo="${d.photos[0]}" alt="">`:"";
+    cards+=`<button style="animation-delay:${(i-1)*60}ms" class="day ${i===n&&!complete(d)?"today":""}" data-act="open" data-n="${i}" aria-label="Tag ${i} öffnen">${ph}<span class="n">Tag ${i}</span><span class="d">${dayLabel(i)||"&nbsp;"}</span><span style="font-size:1.4rem;line-height:1">${mood}</span><span class="st">${st}<span>${dayPoints(d)?`+${dayPoints(d)}`:""}</span></span></button>`;
+  }
+  return `${hero(msg)}
+  <div class="stack" style="margin-top:18px">
+   <div class="row" style="justify-content:space-between"><h1>${esc(gen(name))||"Mein"} Reisetagebuch</h1><button class="snd" data-act="snd" aria-label="Töne ${S.sound!==false?"ausschalten":"einschalten"}">${S.sound!==false?"🔊":"🔇"}</button></div>
+   <section class="panel stats" aria-label="Fortschritt">
+     <div class="dates" title="Datteln">${dateSVG()}<span>${t}</span></div>
+     <div style="text-align:right"><div class="lvl">${L.name}</div><div class="small muted">${L.next?`noch ${L.need-t} Datteln bis ${L.next}`:"Höchstes Level!"}</div></div>
+     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${L.pct}" aria-label="Fortschritt zum nächsten Level"><i style="width:${L.pct}%"></i></div>
+   </section>
+   <button class="btn big ${complete(e)?"ghost":"green"}" data-act="open" data-n="${n}">${complete(e)?`Tag ${n} ansehen`:started(e)?`Tag ${n} weiterschreiben`:`Tag ${n} aufschreiben`}</button>
+   <div class="title-row"><h2>Alle Tage</h2><span class="small muted">${s.done} von ${S.days} fertig</span></div>
+   <div class="days">${cards}</div>
+   ${Store.ok?"":'<p class="note">Achtung: In diesem Browser kann gerade nichts dauerhaft gespeichert werden. Öffne das Tagebuch über das App-Symbol auf dem Startbildschirm.</p>'}
+  </div>`;
+}
+
+function chipList(list,sel,field,multi){
+  return `<div class="chips" role="group">${list.map(i=>{const id=i.id||i[0],em=i.e||i[1],t=i.t||i[2];const on=multi?(sel||[]).includes(id):sel===id;return `<button class="chip" data-act="${multi?"toggle":"set"}" data-f="${field}" data-v="${id}" aria-pressed="${on}"><span class="em" aria-hidden="true">${em}</span>${t}</button>`;}).join("")}</div>`;
+}
+function bigChoices(list,sel,field){
+  return `<div class="big-choices" role="group">${list.map(i=>`<button class="chip" data-act="set" data-f="${field}" data-v="${i.id}" aria-pressed="${sel===i.id}"><span class="em" aria-hidden="true">${i.e}</span>${i.t}</button>`).join("")}</div>`;
+}
+function viewEntry(){
+  const n=UI.day,e=E(n),k=STEPS[UI.step],fox=esc(S.fox);
+  let q="",body="";
+  switch(k){
+   case"mood":q=`Marhaba! Wie war dein Tag ${n}?`;body=bigChoices(MOODS,e.mood,"mood");if(e.mood)q=MOOD_REPLY[e.mood];break;
+   case"weather":q="Wie war das Wetter?";body=bigChoices(WEATHER,e.weather,"weather");break;
+   case"did":q="Was hast du heute gemacht? Tipp alles an, was passt.";body=chipList(ACTS,e.did,"did",true)+`<div><label class="lbl" for="t-did">Noch was anderes?</label><input class="inp" id="t-did" data-text="didText" value="${esc(e.didText)}" placeholder="z. B. Bootsfahrt, Burg gebaut …"></div>`;break;
+   case"animals":q="Hast du Tiere gesehen? Ich hoffe, auch einen Fennek!";body=chipList(ANIMALS,e.animals,"animals",true)+`<div><label class="lbl" for="t-ani">Andere Tiere</label><input class="inp" id="t-ani" data-text="animalText" value="${esc(e.animalText)}" placeholder="z. B. Flamingos"></div>`;break;
+   case"food":q="Was gab's zu essen? Hast du was Neues probiert?";body=chipList(FOODS,e.food,"food",true)+`<div><label class="lbl" for="t-food">Neu probiert oder besonders lecker</label><input class="inp" id="t-food" data-text="foodText" value="${esc(e.foodText)}" placeholder="z. B. Brik mit Ei, war super"></div>`;break;
+   case"highlight":q="Was war heute das Beste? Gab's was Lustiges?";body=`<div><label class="lbl" for="t-hl">Mein Highlight</label><textarea class="inp" id="t-hl" data-text="highlight" placeholder="Erzähl mir davon … Du kannst auch das Mikrofon auf der Tastatur benutzen.">${esc(e.highlight)}</textarea></div>`;break;
+   case"photos":{
+     q="Willst du Fotos einkleben? Bis zu 3 Stück. Du kannst sie auch später noch hinzufügen.";
+     const ph=(e.photos||[]).map(id=>`<div class="ph"><img data-photo="${id}" alt="Foto von Tag ${n}"><button class="x" data-act="delphoto" data-id="${id}">${UI.confirm===id?"Wirklich?":"✕"}</button></div>`).join("");
+     const add=(e.photos||[]).length<3?`<label class="ph add">＋ Foto<input class="sr" type="file" id="photo-in" accept="image/*"></label>`:"";
+     body=`<div class="photos">${ph}${add}</div>`;break;}
+   case"stars":q="Wie viele Sterne bekommt der Tag?";body=`<div class="stars" role="group" aria-label="Sterne">${[1,2,3,4,5].map(i=>`<button class="star" data-act="set" data-f="stars" data-v="${i}" aria-label="${i} Sterne" aria-pressed="${e.stars===i}">${starSVG(e.stars>=i)}</button>`).join("")}</div>`;break;
+   case"quiz":{
+     const Q=quizFor(n);q=`Wusstest du …? Hier ist deine Quizfrage für Tag ${n}!`;
+     const ans=e.quiz;
+     body=`<h3>${esc(Q.q)}</h3><div class="stack" style="gap:10px">${Q.o.map((o,i)=>{let c="";if(ans){if(i===Q.a)c="right";else if(i===ans.choice)c="wrong";}return `<button class="quiz-opt ${c}" data-act="quiz" data-v="${i}" ${ans?"disabled":""}>${esc(o)}</button>`;}).join("")}</div>`;
+     if(ans){q=ans.correct?"Richtig! Du bist ein echter Wüstenfuchs.":"Knapp daneben. Jetzt weißt du's!";body+=`<p>${esc(Q.f)}</p><div class="word"><span class="small muted">Neues Wort</span><b>${esc(Q.w[0])}</b><span>= ${esc(Q.w[1])}</span></div>`;}
+     break;}
+  }
+  const last=UI.step===STEPS.length-1;
+  const prog=STEPS.map((s,i)=>`<i class="${i===UI.step?"cur":filled(e,s)?"on":""}"></i>`).join("");
+  return `<div class="row" style="justify-content:space-between;margin-top:14px"><button class="linkbtn" data-act="home">← Übersicht</button><span class="disp">Tag ${n}${dayLabel(n)?" · "+dayLabel(n):""}</span></div>
+  <div class="prog" aria-label="Frage ${UI.step+1} von ${STEPS.length}">${prog}</div>
+  <div class="ask">${foxSVG("sm")}<p class="bubble" data-act="bubble">${esc(q)}</p></div>
+  <div class="panel stack ${UI.anim||""}">${body}</div>
+  <div class="navrow" style="margin-top:16px">
+    ${UI.step>0?`<button class="btn ghost" data-act="prev">Zurück</button>`:""}
+    <button class="btn ${filled(e,k)?"green":"ghost"}" data-act="next">${last?"Fertig":filled(e,k)?"Weiter":"Überspringen"}</button>
+  </div>
+  <p class="small muted" style="margin-top:12px">${fox} merkt sich alles sofort. Du kannst jederzeit aufhören und später weitermachen.</p>`;
+}
+
+function viewReward(){
+  const n=UI.day,e=S.entries[n],p=dayPoints(e),t=total(),L=level(t);
+  const newA=UI.newAch.map(id=>ACH.find(a=>a.id===id)).filter(Boolean);
+  return `${hero(complete(e)?`Tag ${n} ist im Buch! Danke, dass du mir alles erzählt hast.`:`Gespeichert! Wenn du magst, füllst du den Rest später aus.`,"jump")}
+  <div class="stack" style="margin-top:18px">
+   <section class="panel stack" style="align-items:center;text-align:center">
+     <p class="disp">Heute verdient</p>
+     <div class="row" style="justify-content:center">${dateSVG()}<span class="big-num" id="countup" data-to="${p}">+${p}</span></div>
+     <p>Zusammen hast du jetzt <b>${t} Datteln</b> und bist <b>${L.name}</b>.</p>
+     <div class="bar" style="width:100%"><i style="width:${L.pct}%"></i></div>
+   </section>
+   ${newA.length?`<h2>Neu freigeschaltet!</h2><div class="ach-grid">${newA.map(a=>`<div class="ach new"><span class="em" aria-hidden="true">${a.e}</span><div><b>${a.t}</b><span>${a.d}</span></div></div>`).join("")}</div>`:""}
+   <button class="btn big" data-act="share" data-n="${n}">Tag ${n} an Mama und Papa schicken</button>
+   <button class="btn big ghost" data-act="home">Zur Übersicht</button>
+  </div>`;
+}
+
+function viewAch(){
+  const got=unlocked(),s=stats();
+  return `<div class="stack" style="margin-top:20px">
+   <div class="ask" style="margin-top:0">${foxSVG("sm")}<p class="bubble">Du hast ${got.length} von ${ACH.length} Erfolgen. ${got.length===ACH.length?"Alle! Unglaublich!":"Weiter so!"}</p></div>
+   <h1>Erfolge</h1>
+   <div class="ach-grid">${ACH.map(a=>{const ok=got.includes(a.id);return `<div class="ach ${ok?"":"locked"}"><span class="em" aria-hidden="true">${a.e}</span><div><b>${a.t}</b><span>${a.d}</span></div></div>`;}).join("")}</div>
+   <section class="panel stack">
+    <h2>Deine Sammlung</h2>
+    <p><b>Tiere:</b> ${s.animals.size?[...s.animals].map(a=>{const x=pick(ANIMALS,a);return x?x.e+" "+x.t:a;}).join(", "):"noch keine"}</p>
+    <p><b>Fotos:</b> ${s.photos} · <b>Quiz richtig:</b> ${s.right}</p>
+   </section>
+   <h2>Level</h2>
+   <ol class="list-plain">${LEVELS.map(([p,nm])=>`<li>${nm} <span class="muted small">ab ${p} Datteln</span></li>`).join("")}</ol>
+  </div>`;
+}
+
+function viewWords(){
+  let rows="";for(let n=1;n<=S.days;n++){const Q=quizFor(n),e=S.entries[n],ok=e&&e.quiz;rows+=`<div class="word"><span class="small muted" style="width:44px">Tag ${n}</span>${ok?`<b>${esc(Q.w[0])}</b><span>= ${esc(Q.w[1])}</span>`:`<b>???</b><span class="muted small">Quiz von Tag ${n} lösen</span>`}</div>`;}
+  return `<div class="stack" style="margin-top:20px">
+   <div class="ask" style="margin-top:0">${foxSVG("sm")}<p class="bubble">Mit jedem Quiz lernst du ein arabisches Wort. Probier sie im Hotel aus!</p></div>
+   <h1>Meine arabischen Wörter</h1>
+   <div class="stack" style="gap:10px">${rows}</div>
+   <p class="note">In Tunesien spricht man Arabisch, oft auch Französisch. Ein „Schukran“ freut fast jeden.</p>
+  </div>`;
+}
+
+function viewMore(){
+  const opts=[];for(let n=1;n<=S.days;n++)if(started(S.entries[n]))opts.push(n);
+  const c=UI.confirm;
+  return `<div class="stack" style="margin-top:20px">
+   <h1>Mehr</h1>
+   <section class="panel stack">
+     <h2>Einen Tag verschicken</h2>
+     <p class="small muted">Öffnet die Teilen-Auswahl des Tablets, zum Beispiel für E-Mail. Fotos werden mitgeschickt.</p>
+     ${opts.length?`<div class="chips">${opts.map(n=>`<button class="chip" data-act="share" data-n="${n}">Tag ${n}</button>`).join("")}</div>`:`<p>Noch kein Tag aufgeschrieben.</p>`}
+   </section>
+   <section class="panel stack">
+     <h2>Erinnerungsbuch</h2>
+     <p class="small muted">Alle Tage mit Fotos als eine Seite, die man später auf jedem Gerät öffnen kann.</p>
+     <div class="row"><button class="btn" data-act="book-share">Buch teilen</button><button class="btn ghost" data-act="book-dl">Buch speichern</button></div>
+   </section>
+   <section class="panel stack">
+     <h2>Sicherung</h2>
+     <p class="small muted">Eine Sicherungsdatei mit allem. Damit kannst du das Tagebuch auf ein anderes Gerät umziehen.</p>
+     <div class="row"><button class="btn ghost" data-act="backup">Sicherung speichern</button><label class="btn ghost" for="restore-in">Sicherung laden</label><input class="sr" type="file" id="restore-in" accept="application/json,.json"></div>
+   </section>
+   <section class="panel stack">
+     <h2>Einstellungen</h2>
+     <form id="settings" class="stack">
+      <div><label class="lbl" for="s-name">Dein Name</label><input class="inp" id="s-name" value="${esc(S.traveller)}"></div>
+      <div><label class="lbl" for="s-fox">Name des Fenneks</label><input class="inp" id="s-fox" value="${esc(S.fox)}" maxlength="20"></div>
+      <div class="row" style="align-items:flex-end"><div style="flex:1;min-width:140px"><label class="lbl" for="s-start">Erster Urlaubstag</label><input class="inp" type="date" id="s-start" value="${esc(S.start)}"></div><div style="width:110px"><label class="lbl" for="s-days">Tage</label><input class="inp" type="number" id="s-days" min="1" max="21" value="${S.days}"></div></div>
+      <button class="btn green" type="submit">Speichern</button>
+     </form>
+     <button class="btn ${c==="wipe"?"danger":"ghost"}" data-act="wipe">${c==="wipe"?"Wirklich alles löschen? Nochmal tippen":"Tagebuch komplett löschen"}</button>
+   </section>
+   <p class="note">Gespeichert wird nur auf diesem Gerät${S.persisted?" (dauerhaft geschützt)":""}. Mach am Ende des Urlaubs eine Sicherung oder speichere das Erinnerungsbuch.${inFrame()?" In dieser Vorschau funktionieren Teilen und Speichern nicht, erst in der installierten App.":""}</p>
+  </div>`;
+}
+
+async function hydratePhotos(){
+  document.querySelectorAll("img[data-photo]").forEach(async img=>{const u=await photoURL(img.dataset.photo);if(u)img.src=u;else img.remove();});
+}
+
+/* ---------- Teilen, Buch, Sicherung ---------- */
+function dayText(n){
+  const e=S.entries[n]||{},L=[];
+  L.push(`📔 ${gen(S.traveller)||"Mein"} Reisetagebuch – Tag ${n}${dayLabel(n)?" ("+dayLabel(n)+")":""}`);
+  const m=e.mood&&pick(MOODS,e.mood),w=e.weather&&pick(WEATHER,e.weather);
+  if(m||w)L.push([m?`Laune: ${m.e} ${m.t}`:"",w?`Wetter: ${w.e} ${w.t}`:""].filter(Boolean).join(" | "));
+  const lst=(arr,list,txt)=>[...(arr||[]).map(id=>{const x=pick(list,id);return x?x.e+" "+x.t:id;}),txt&&txt.trim()?txt.trim():""].filter(Boolean).join(", ");
+  const d=lst(e.did,ACTS,e.didText);if(d)L.push("Gemacht: "+d);
+  const a=lst(e.animals,ANIMALS,e.animalText);if(a)L.push("Tiere: "+a);
+  const f=lst(e.food,FOODS,e.foodText);if(f)L.push("Essen: "+f);
+  if(e.highlight&&e.highlight.trim())L.push("Highlight: "+e.highlight.trim());
+  if(e.stars)L.push("Bewertung: "+"★".repeat(e.stars)+"☆".repeat(5-e.stars));
+  if(e.quiz){const Q=quizFor(n);L.push(`Quiz: ${e.quiz.correct?"richtig ✓":"knapp daneben"} · Neues Wort: ${Q.w[0]} = ${Q.w[1]}`);}
+  L.push(`Datteln heute: +${dayPoints(e)}`);
+  return L.join("\n");
+}
+async function shareDay(n){
+  const text=dayText(n),e=S.entries[n]||{},files=[];
+  for(let i=0;i<(e.photos||[]).length;i++){const b=await Store.get("photo:"+e.photos[i]);if(b)files.push(new File([b],`tag${n}-foto${i+1}.jpg`,{type:"image/jpeg"}));}
+  try{
+    if(navigator.share){
+      const data={title:`Reisetagebuch Tag ${n}`,text};
+      if(files.length&&navigator.canShare&&navigator.canShare({files}))data.files=files;
+      await navigator.share(data);toast("Abgeschickt!");return;
+    }
+  }catch(err){if(err&&err.name==="AbortError")return;}
+  modal(`<h2>Tag ${n} zum Kopieren</h2><p class="small muted">Teilen geht hier nicht direkt. Kopier den Text und füge ihn in eine Nachricht ein.</p><textarea class="inp" id="share-txt" readonly style="min-height:200px">${esc(text)}</textarea><div class="row"><button class="btn" data-act="copy">Kopieren</button><button class="btn ghost" data-act="close">Schließen</button></div>`);
+}
+async function buildBook(){
+  const parts=[];
+  for(let n=1;n<=S.days;n++){
+    const e=S.entries[n];if(!started(e))continue;
+    let imgs="";for(const id of (e.photos||[])){const b=await Store.get("photo:"+id);if(b)imgs+=`<img src="${await blobToDataURL(b)}" alt="">`;}
+    const lines=dayText(n).split("\n").slice(1,-1).map(l=>`<p>${esc(l)}</p>`).join("");
+    parts.push(`<section><h2>Tag ${n}${dayLabel(n)?" · "+esc(dayLabel(n)):""}</h2>${lines}<div class="imgs">${imgs}</div></section>`);
+  }
+  const t=total();
+  return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(gen(S.traveller)||"Mein")} Reisetagebuch Tunesien</title><style>body{font-family:system-ui,sans-serif;background:#f3dfb1;color:#3a2413;margin:0;padding:24px 16px;line-height:1.5}main{max-width:700px;margin:0 auto}h1{font-family:monospace;font-size:1.8rem}section{background:#fff6de;border:3px solid #3a2413;box-shadow:4px 4px 0 #3a2413;padding:16px;margin:18px 0}h2{font-family:monospace;margin:0 0 8px}p{margin:4px 0}.imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:10px}.imgs img{width:100%;border:3px solid #3a2413}</style></head><body><main><h1>${esc(gen(S.traveller)||"Mein")} Reisetagebuch Tunesien</h1><p>Gesammelt mit ${esc(S.fox)}, dem Wüstenfuchs · ${t} Datteln · ${level(t).name}</p>${parts.join("")||"<p>Noch keine Einträge.</p>"}</main></body></html>`;
+}
+function download(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+async function bookShare(){
+  const html=await buildBook(),file=new File([html],"Reisetagebuch-Tunesien.html",{type:"text/html"});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Reisetagebuch Tunesien"});return;}}catch(e){if(e&&e.name==="AbortError")return;}
+  toast("Teilen klappt hier nicht. Nimm „Buch speichern“.");
+}
+async function bookDl(){const html=await buildBook();download(new Blob([html],{type:"text/html"}),"Reisetagebuch-Tunesien.html");toast("Buch wird gespeichert …");}
+async function backup(){
+  const photos={};for(let n=1;n<=S.days;n++){for(const id of ((S.entries[n]||{}).photos||[])){const b=await Store.get("photo:"+id);if(b)photos[id]=await blobToDataURL(b);}}
+  const json=JSON.stringify({app:"wuestenfuchs-tagebuch",v:1,state:S,photos});
+  download(new Blob([json],{type:"application/json"}),"Reisetagebuch-Sicherung.json");toast("Sicherung wird gespeichert …");
+}
+async function restore(file){
+  try{
+    const d=JSON.parse(await file.text());if(d.app!=="wuestenfuchs-tagebuch"||!d.state)throw new Error();
+    for(const [id,u] of Object.entries(d.photos||{}))await Store.set("photo:"+id,await dataURLToBlob(u));
+    S=Object.assign(blank(),d.state);urlCache.clear();await save(true);UI.view="home";render();toast("Sicherung geladen!");
+  }catch(e){toast("Diese Datei ist keine Tagebuch-Sicherung.");}
+}
+function modal(html){$("#layer").innerHTML=`<div class="modal" role="dialog" aria-modal="true"><div class="panel stack">${html}</div></div>`;}
+function closeModal(){const m=$("#layer .modal");if(m)m.remove();}
+
+/* ---------- Ablauf ---------- */
+function openDay(n){UI.day=n;const e=E(n);let s=STEPS.findIndex(k=>!filled(e,k)&&k!=="photos");UI.step=s<0||complete(e)?0:s;UI.view="entry";UI.confirm=null;render();}
+function finishDay(){
+  const now=unlocked();UI.newAch=now.filter(id=>!S.seenAch.includes(id));S.seenAch=now;save(true);UI.view="reward";UI.celebrate=true;render();
+}
+async function addPhoto(file){
+  const e=E(UI.day);if((e.photos||[]).length>=3)return;
+  toast("Foto wird eingeklebt …");
+  try{const b=await compress(file);const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);await Store.set("photo:"+id,b);e.photos.push(id);await save(true);UI.fx="hop";rerenderKeepScroll();flyer(innerWidth/2,innerHeight/2,5);}
+  catch(err){toast("Das Foto konnte nicht geladen werden. Versuch ein anderes.");}
+}
+
+document.addEventListener("click",async ev=>{
+  const b=ev.target.closest("[data-act]");if(!b)return;
+  const act=b.dataset.act;
+  if(act!=="delphoto"&&act!=="wipe")UI.confirm=null;
+  const before=UI.view==="entry"?dayPoints(E(UI.day)):0,px=ev.clientX,py=ev.clientY;
+  switch(act){
+   case"fox":fx(b,"hop");snd("hop");say(FOX_LINES[Math.floor(Math.random()*FOX_LINES.length)]);break;
+   case"sun":fx(b,"spin");snd("tap");say(isDark()?"Qamar heißt Mond. Gute Nacht, Wüste!":"Schams heißt Sonne. Heute wird's bestimmt wieder heiß!");break;
+   case"palm":fx(b,"wiggle");snd("drop");dropDate(b);say("Plopp! Eine Dattel. In Tunesien wachsen ganz viele davon.");break;
+   case"camel":fx(b,"hop");snd("hop");say("Dschamal heißt Kamel. Wo es wohl hinläuft?");break;
+   case"house":fx(b,"wiggle");snd("tap");say("Weiße Häuser mit blauen Türen gibt es in Sidi Bou Said bei Tunis.");break;
+   case"bubble":if(b.dataset.full){clearInterval(typeT);b.textContent=b.dataset.full;}break;
+   case"snd":S.sound=S.sound===false;save();snd("pop");rerenderKeepScroll();break;
+   case"tab":UI.view=b.dataset.id;render();break;
+   case"home":UI.view="home";render();break;
+   case"open":openDay(+b.dataset.n);break;
+   case"set":{const e=E(UI.day),f=b.dataset.f;let v=b.dataset.v;if(f==="stars")v=+v;e[f]=(e[f]===v&&f!=="stars")?null:v;save();UI.fx="hop";snd("pop");rerenderKeepScroll();gain(before,px,py);break;}
+   case"toggle":{const e=E(UI.day),f=b.dataset.f,v=b.dataset.v;e[f]=e[f]||[];const i=e[f].indexOf(v);if(i>=0)e[f].splice(i,1);else e[f].push(v);save();b.setAttribute("aria-pressed",i<0);updateNext();snd(i<0?"pop":"tap");if(i<0)fx($(".ask .fox"),"hop");gain(before,px,py);break;}
+   case"quiz":{const e=E(UI.day);if(e.quiz)break;const v=+b.dataset.v,Q=quizFor(UI.day);e.quiz={choice:v,correct:v===Q.a};save(true);snd(e.quiz.correct?"right":"wrong");UI.fx=e.quiz.correct?"hop":"shake";rerenderKeepScroll();gain(before,px,py);break;}
+   case"next":snd("tap");if(UI.step<STEPS.length-1){UI.step++;UI.anim="enter";render();}else finishDay();break;
+   case"prev":snd("tap");if(UI.step>0){UI.step--;UI.anim="enter-back";render();}break;
+   case"delphoto":{const id=b.dataset.id;if(UI.confirm!==id){UI.confirm=id;rerenderKeepScroll();break;}const e=E(UI.day);e.photos=e.photos.filter(x=>x!==id);await Store.del("photo:"+id);UI.confirm=null;save(true);rerenderKeepScroll();break;}
+   case"share":shareDay(+b.dataset.n);break;
+   case"book-share":bookShare();break;
+   case"book-dl":bookDl();break;
+   case"backup":backup();break;
+   case"copy":{const ta=$("#share-txt");try{await navigator.clipboard.writeText(ta.value);toast("Kopiert!");}catch(e){ta.focus();ta.select();toast("Text markiert, jetzt kopieren.");}break;}
+   case"close":closeModal();break;
+   case"wipe":{if(UI.confirm!=="wipe"){UI.confirm="wipe";rerenderKeepScroll();break;}for(const n in S.entries)for(const id of (S.entries[n].photos||[]))await Store.del("photo:"+id);S=blank();urlCache.clear();UI.confirm=null;await save(true);render();toast("Tagebuch gelöscht.");break;}
+  }
+});
+function updateNext(){const e=E(UI.day),k=STEPS[UI.step];const btns=document.querySelectorAll('[data-act="next"]');btns.forEach(btn=>{const last=UI.step===STEPS.length-1;btn.className="btn "+(filled(e,k)?"green":"ghost");btn.textContent=last?"Fertig":filled(e,k)?"Weiter":"Überspringen";});document.querySelectorAll(".prog i").forEach((el,i)=>{el.className=i===UI.step?"cur":filled(e,STEPS[i])?"on":"";});}
+document.addEventListener("input",ev=>{const t=ev.target;if(t.dataset&&t.dataset.text){const e=E(UI.day),before=dayPoints(e);e[t.dataset.text]=t.value;save();updateNext();const g=dayPoints(e)-before;if(g>0){const r=t.getBoundingClientRect();flyer(r.right-70,r.top,g);}}});
+document.addEventListener("change",ev=>{
+  const t=ev.target;
+  if(t.id==="photo-in"&&t.files&&t.files[0])addPhoto(t.files[0]);
+  if(t.id==="restore-in"&&t.files&&t.files[0])restore(t.files[0]);
+});
+function readForm(p){
+  S.traveller=$("#"+p+"-name").value.trim();
+  S.fox=$("#"+p+"-fox").value.trim()||"Fenni";
+  S.start=$("#"+p+"-start").value||"";
+  const d=parseInt($("#"+p+"-days").value,10);S.days=Math.min(21,Math.max(1,isNaN(d)?6:d));
+}
+document.addEventListener("submit",ev=>{
+  ev.preventDefault();
+  if(ev.target.id==="setup"){readForm("f");S.setupDone=true;save(true);UI.view="home";render();}
+  if(ev.target.id==="settings"){readForm("s");save(true);render();toast("Gespeichert!");}
+});
+
+(async function boot(){
+  const saved=await Store.get("state");
+  S=Object.assign(blank(),saved||{});
+  render();
+  try{if(navigator.storage&&navigator.storage.persist){S.persisted=await navigator.storage.persist();save();}}catch(e){}
+  try{if("serviceWorker" in navigator&&location.protocol==="https:"&&!inFrame()&&window.__SW__)navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
+})();
+</script>
+</body>
+</html>
